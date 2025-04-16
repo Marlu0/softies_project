@@ -7,3 +7,5 @@ This file is a user's guide for the project. For the moment it has these functio
 - Prompt window: Here you type the prompt. The context of the folder is already prompted to the model
 - Output window: Here the output is printed raw, without formatting
 - Display Markdown: Opens a browser page to visualize the output correctly formatted
+
+**IMPORTANT**: Replace the string API_KEY_HERE in content_creator.py with your own API key for gemini, otherwise the program won't work
