@@ -9,7 +9,7 @@ import os
 selected_folder = ""
 
 def open_help_url():
-    webbrowser.open("https://www.example.com/help")  # Replace with your help URL
+    webbrowser.open("https://github.com/Marlu0/softies_project/blob/main/HELP.md")  # Replace with your help URL
 
 def browse_folder():
     global selected_folder
