@@ -5,12 +5,31 @@ import google.generativeai as genai
 def create_context(folder_path):
     prompt = "You are an AI that understands the context of a folder based on its file contents.\n"
     prompt += "Here are the files and their contents:\n\n"
+    file_contents = process_files(folder_path, "blacklist.txt")
+    for file_path, content in file_contents.items():
+        prompt += f"--- {file_path} ---\n{content}\n\n"
+    prompt += "What is the context of this folder?"
+    return prompt
+
+def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__file__), "blacklist.txt")):
+    file_contents = {}
+    blacklist = []
+    try:
+        with open(blacklist_file, "r", encoding="utf-8") as f:
+            for line in f:
+                blacklist.append(os.path.normpath(line.strip()))
+    except FileNotFoundError:
+        print("Blacklist file not found. Continuing without blacklist.")
+
     for root, _, files in os.walk(folder_path):
         for file in files:
-            file_path = os.path.join(root, file)
+            file_path = os.path.normpath(os.path.join(root, file))
+            if file_path in blacklist:
+                print(f"Skipping blacklisted file: {file_path}")
+                continue
             try:
                 with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
+                    file_contents[file_path] = f.read()
             except UnicodeDecodeError:
                 try:
                     workbook = openpyxl.load_workbook(file_path)
@@ -19,16 +38,15 @@ def create_context(folder_path):
                         for row in sheet.iter_rows():
                             row_values = [str(cell.value) for cell in row]
                             content += ", ".join(row_values) + "\n"
+                    file_contents[file_path] = content
                 except Exception as e:
-                    content = f"Error reading {file}: {e}"
+                    file_contents[file_path] = f"Error reading {file}: {e}"
             except Exception as e:
-                content = f"Error reading {file}: {e}"
-            prompt += f"--- {file_path} ---\n{content}\n\n"
-    prompt += "What is the context of this folder?"
-    return prompt
+                file_contents[file_path] = f"Error reading {file}: {e}"
+    return file_contents
 
-DEFAULT_API_KEY = "API_KEY_HERE"  # Replace with API key for gemini
-DEFAULT_MODEL_NAME = "gemini-2.0-flash-001"
+DEFAULT_API_KEY = "API_KEY_HERE"
+DEFAULT_MODEL_NAME = "gemini-2.0-flash"
 
 def chat_with_context(folder_path, user_prompt, api_key=DEFAULT_API_KEY, model_name=DEFAULT_MODEL_NAME):
     genai.configure(api_key=api_key)
