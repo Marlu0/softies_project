@@ -1,1 +1,6 @@
-pip install vosk sounddevice
+openpyxl
+google.generativeai
+tk
+markdown2
+vosk
+pyttsx3
