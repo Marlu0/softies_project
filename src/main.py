@@ -1,8 +1,10 @@
 from speech2text import listen_for_input  # Function to transcribe live mic input
 from context_creator import chat_with_context  # Function to get Gemini AI output
 from text2speech import speak_text  # Function to read text out loud
+from memory_managing import MemoryManager
 
 FOLDER_PATH = "test_folder"
+memory = MemoryManager()
 
 def main():
     while True:
@@ -12,6 +14,14 @@ def main():
         if user_input.lower() == "stop":
             print("👋 Goodbye!")
             break
+
+        # Lo comento porque no estoy 100% de que funciona bien 
+        """def ask_with_context(user_input):
+            prompt = memory.build_prompt(user_input)
+            response = ask_gemini(prompt)
+            ai_text = response.text.strip()
+            memory.update(user_input, ai_text)
+            return ai_text"""
 
         # 2. Pass the transcribed text and folder to Gemini
         ai_response = chat_with_context(FOLDER_PATH, user_input)
