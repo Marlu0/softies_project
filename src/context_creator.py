@@ -1,6 +1,17 @@
 import os
 import openpyxl
 import google.generativeai as genai
+import re
+
+def remove_code_from_text(text):
+    """
+    Removes code snippets from the given text and replaces them with descriptions.
+    """
+    # Replace code blocks enclosed in triple backticks
+    text = re.sub(r"```.*?```", "as shown in the code provided in the text box", text, flags=re.DOTALL)
+    # Replace inline code enclosed in single backticks
+    text = re.sub(r"`.*?`", "as shown in the code provided in the text box", text)
+    return text
 
 def create_context(folder_path):
     prompt = "You are an AI that understands the context of a folder based on its file contents.\n"
@@ -57,9 +68,11 @@ def chat_with_context(folder_path, user_prompt, api_key=DEFAULT_API_KEY, model_n
 
     try:
         response = model.generate_content(full_prompt)
-        return response.text
+        original_response = response.text
+        modified_response = remove_code_from_text(original_response)
+        return original_response, modified_response
     except Exception as e:
-        return f"Error generating response: {e}"
+        return f"Error generating response: {e}", f"Error generating response: {e}"
 
 if __name__ == "__main__":
     import sys

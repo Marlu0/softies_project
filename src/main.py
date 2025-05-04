@@ -14,11 +14,11 @@ def main():
             break
 
         # 2. Pass the transcribed text and folder to Gemini
-        ai_response = chat_with_context(FOLDER_PATH, user_input)
+        ai_response, modified_ai_response = chat_with_context(FOLDER_PATH, user_input)
         print(f"🤖AI Response: {ai_response}")
 
         # 3. Speak the AI response aloud
-        speak_text(ai_response)
+        speak_text(modified_ai_response)
 
 if __name__ == "__main__":
     main()
