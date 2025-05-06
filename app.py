@@ -22,8 +22,11 @@ def display_conversation():
         else:
             st.write(f"🤖 **Assistant**: {message['text']}")
 
+#Show previous conversation  
+display_conversation()
+
 # Start listening continuously when button is clicked
-if st.button("Start Listening"):
+if st.button("Speak now"):
     st.write("👂 Listening... Speak continuously to interact with the assistant.")
     
     while True:
