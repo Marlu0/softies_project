@@ -4,3 +4,4 @@ tk
 markdown2
 vosk
 pyttsx3
+streamlit
