@@ -3,6 +3,7 @@ import openpyxl
 import google.generativeai as genai
 import re
 
+
 def remove_code_from_text(text):
     """
     Removes code snippets from the given text and replaces them with descriptions.
@@ -57,10 +58,9 @@ def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__fil
                 file_contents[file_path] = f"Error reading {file}: {e}"
     return file_contents
 
-DEFAULT_API_KEY = "API_KEY_HERE"
 DEFAULT_MODEL_NAME = "gemini-2.0-flash"
 
-def chat_with_context(folder_path, user_prompt, api_key=DEFAULT_API_KEY, model_name=DEFAULT_MODEL_NAME):
+def chat_with_context(folder_path, user_prompt, api_key, model_name=DEFAULT_MODEL_NAME):
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(model_name)
@@ -75,12 +75,4 @@ def chat_with_context(folder_path, user_prompt, api_key=DEFAULT_API_KEY, model_n
     except Exception as e:
         return f"Error generating response: {e}", f"Error generating response: {e}"
 
-if __name__ == "__main__":
-    import sys
-    if len(sys.argv) < 3:
-        print("Usage: python context_creator.py <folder_path> <user_prompt>")
-        sys.exit(1)
-    folder_path = sys.argv[1]
-    user_prompt = sys.argv[2]
-    response = chat_with_context(folder_path, user_prompt)
-    print(response)
+
