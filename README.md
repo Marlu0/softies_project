@@ -11,3 +11,4 @@ python src/main.py
 - Marcel Manzano u231726
 - Franco Olano u233420
 - Nerea González u199125
+- Adrià López u233501
