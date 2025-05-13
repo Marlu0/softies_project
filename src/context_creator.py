@@ -19,7 +19,7 @@ def create_context(folder_path):
     file_contents = process_files(folder_path, "blacklist.txt")
     for file_path, content in file_contents.items():
         prompt += f"--- {file_path} ---\n{content}\n\n"
-    prompt += "What is the context of this folder?"
+    prompt += "The previous text is the context for the next prompt:"
     return prompt
 
 def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__file__), "blacklist.txt")):
