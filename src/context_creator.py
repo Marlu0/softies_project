@@ -14,12 +14,13 @@ def remove_code_from_text(text):
     return text
 
 def create_context(folder_path):
-    prompt = "You are an AI that understands the context of a folder based on its file contents.\n"
-    prompt += "Here are the files and their contents:\n\n"
+    prompt = "You are an AI expert in code analysis and improvement. Below is the content of several files from a project.\n"
+    prompt += "Use this information as context to analyze, explain, correct, or improve code, according to the specific request in the following prompt provided by the user.\n\n"
+    prompt += "File Contents:\n\n"
     file_contents = process_files(folder_path, "blacklist.txt")
     for file_path, content in file_contents.items():
         prompt += f"--- {file_path} ---\n{content}\n\n"
-    prompt += "The previous text is the context for the next prompt:"
+    prompt += "The following user prompt will contain the specific instructions for the code analysis:"
     return prompt
 
 def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__file__), "blacklist.txt")):
