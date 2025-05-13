@@ -14,7 +14,7 @@ def remove_code_from_text(text):
     return text
 
 def create_context(folder_path):
-    prompt = "You are an AI that understands the context of a folder based on its file contents.\n"
+    prompt = "You are an AI called Softy that understands the context of a folder based on its file contents.\n"
     prompt += "Here are the files and their contents:\n\n"
     file_contents = process_files(folder_path, "blacklist.txt")
     for file_path, content in file_contents.items():
