@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Softy - Your Voice Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>Home</h1>
+        </header>
+
+        {# Flash Messages Section #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <section class="hero-section">
+            <div class="hero-content">
+                <div class="softy-branding">
+                    {# Use url_for for static files #}
+                    <img src="{{ url_for('static', filename='images/robot-icon.png') }}" alt="Softy Robot" class="robot-icon">
+                    <div class="softy-text">
+                        <span class="softy-title">Softy</span>
+                        <p class="softy-tagline">Your friendly voice assistant for developers</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="project-options">
+            <div class="option-card">
+                <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Folder" class="icon">
+                <span>Lab 1</span>
+            </div>
+            <div class="option-card">
+                <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Folder" class="icon">
+                <span>App.py</span>
+            </div>
+            <div class="option-card black-background">
+                <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Browse" class="icon">
+                <span>Browse</span>
+            </div>
+            {# Changed onclick to use url_for #}
+            <div class="option-card create-new-project" onclick="window.location.href='{{ url_for('create_project_page') }}'">
+                <img src="{{ url_for('static', filename='images/plus-icon.png') }}" alt="Create New Project" class="icon">
+                <span>Create new project</span>
+            </div>
+        </section>
+
+        <section class="create-project-hint">
+            <h2>Create Project</h2>
+        </section>
+    </div>
+</body>
+</html>

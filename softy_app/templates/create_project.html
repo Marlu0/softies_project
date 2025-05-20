@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Create New Project</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            {# Changed href to use url_for #}
+            <a href="{{ url_for('home') }}" class="back-arrow">&#8592;</a> </header>
+
+        {# Flash Messages Section #}
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                <ul class="flashes">
+                {% for category, message in messages %}
+                    <li class="{{ category }}">{{ message }}</li>
+                {% endfor %}
+                </ul>
+            {% endif %}
+        {% endwith %}
+
+        <section class="create-project-form-section">
+            <div class="project-folder-icon">
+                {# Use url_for for static files #}
+                <img src="{{ url_for('static', filename='images/folder-icon-large.png') }}" alt="Project Folder">
+            </div>
+            <div class="form-content">
+                {# Added form tag and action/method #}
+                <form action="{{ url_for('submit_project') }}" method="POST">
+                    <label for="projectName">Name of the project:</label>
+                    <input type="text" id="projectName" name="projectName" placeholder="Enter the name of the project" required>
+                    <button type="submit" class="start-coding-button">Start Coding</button>
+                </form>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
