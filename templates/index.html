@@ -26,7 +26,6 @@
         <section class="hero-section">
             <div class="hero-content">
                 <div class="softy-branding">
-                    {# Use url_for for static files #}
                     <img src="{{ url_for('static', filename='images/robot-icon.jpg') }}" alt="Softy Robot" class="robot-icon">
                     <div class="softy-text">
                         <span class="softy-title">Softy</span>
@@ -37,28 +36,107 @@
         </section>
 
         <section class="project-options">
-            <div class="option-card">
-                <img src="{{ url_for('static', filename='images/folder-icon.jpg') }}" alt="Folder" class="icon">
-                <span>Lab 1</span>
-            </div>
-            <div class="option-card">
-                <img src="{{ url_for('static', filename='images/folder-icon.jpg') }}" alt="Folder" class="icon">
-                <span>App.py</span>
-            </div>
-            <div class="option-card black-background">
-                <img src="{{ url_for('static', filename='images/browse-icon.jpg') }}" alt="Browse" class="icon">
-                <span>Browse</span>
-            </div>
-            {# Changed onclick to use url_for #}
-            <div class="option-card create-new-project" onclick="window.location.href='{{ url_for('create_project_page') }}'">
-                <img src="{{ url_for('static', filename='images/plus-icon.jpg') }}" alt="Create New Project" class="icon">
+            {# Dynamically load projects from the database #}
+            {% if projects %}
+                {% for project in projects %}
+                <div class="option-card" data-project-id="{{ project.id }}">
+                    <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Folder" class="icon">
+                    <span>{{ project.name }}</span>
+                    <button class="delete-project-btn" data-project-id="{{ project.id }}">&#x2715;</button> </div>
+                {% endfor %}
+            {% else %}
+                <p>No projects loaded yet. Click "Create new project" to add one.</p>
+            {% endif %}
+
+            {# This card will now trigger the folder selection process via JavaScript #}
+            <div class="option-card create-new-project" id="createNewProjectCard">
+                <img src="{{ url_for('static', filename='images/plus-icon.png') }}" alt="Create New Project" class="icon">
                 <span>Create new project</span>
             </div>
         </section>
 
         <section class="create-project-hint">
-            <h2>Create Project</h2>
+            <h2>Your Projects</h2>
         </section>
     </div>
+
+    <script>
+        document.getElementById('createNewProjectCard').addEventListener('click', async function() {
+            // Display a temporary message to the user
+            const flashesContainer = document.querySelector('.flashes');
+            if (flashesContainer) {
+                flashesContainer.innerHTML = '<li class="info">Opening folder selection dialog... Please wait.</li>';
+                flashesContainer.style.display = 'block';
+            }
+
+            try {
+                // Call the Python function directly through pywebview.api
+                // Await the result from the Python function
+                const folderPath = await pywebview.api.select_project_folder_dialog();
+
+                if (folderPath) {
+                    // If a folder was selected, send it to Flask to save to DB
+                    const response = await fetch('/add_selected_project', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({ path: folderPath }),
+                    });
+                    const addData = await response.json();
+
+                    if (addData.success) {
+                        window.location.href = addData.redirect_url; // Redirect to home to refresh projects
+                    } else {
+                        if (flashesContainer) {
+                            flashesContainer.innerHTML = `<li class="error">${addData.message}</li>`;
+                            flashesContainer.style.display = 'block';
+                        }
+                    }
+                } else {
+                    // User cancelled the dialog
+                    if (flashesContainer) {
+                        flashesContainer.innerHTML = '<li class="info">Folder selection cancelled.</li>';
+                        flashesContainer.style.display = 'block';
+                        setTimeout(() => { flashesContainer.style.display = 'none'; }, 3000);
+                    }
+                }
+            } catch (error) {
+                console.error('Error in folder selection process:', error);
+                if (flashesContainer) {
+                    flashesContainer.innerHTML = '<li class="error">An error occurred during folder selection.</li>';
+                    flashesContainer.style.display = 'block';
+                }
+            }
+        });
+
+        // Event listener for delete buttons (delegation for dynamically added buttons)
+        document.querySelector('.project-options').addEventListener('click', function(event) {
+            if (event.target.classList.contains('delete-project-btn')) {
+                event.stopPropagation(); // Prevent card click event from firing
+                const projectId = event.target.dataset.projectId;
+                if (confirm('Are you sure you want to remove this project from the app? (The folder on your PC will not be deleted)')) {
+                    fetch(`/delete_project/${projectId}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            window.location.reload(); // Reload the page to show updated list
+                        } else {
+                            alert(data.message); // Show error if deletion failed
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error deleting project:', error);
+                        alert('An error occurred during deletion.');
+                    });
+                }
+            }
+        });
+    </script>
 </body>
 </html>

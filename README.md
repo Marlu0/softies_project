@@ -4,7 +4,7 @@ Public repo for the Software Engineering project.
 
 ### Run Project
 ```bash
-flask run
+python app.py
 ```
 
 **Add u numbers and names below:**

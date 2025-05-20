@@ -7,3 +7,4 @@ pyttsx3
 streamlit
 sounddevice
 Flask
+pywebview

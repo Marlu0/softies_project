@@ -2,8 +2,17 @@
 import sqlite3
 import os
 
-# Database file is now in the same directory as this script (src/)
-DATABASE = 'softy_projects.db'
+# Determine the absolute path to the root directory (softy_app/)
+# This assumes database.py is in softy_app/src/
+ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+DATA_DIR = os.path.join(ROOT_DIR, 'data') # Path to the data directory
+
+# Ensure the data directory exists
+if not os.path.exists(DATA_DIR):
+    os.makedirs(DATA_DIR)
+
+# Database file will be inside the 'data' directory
+DATABASE = os.path.join(DATA_DIR, 'softy_projects.db')
 
 def get_db_connection():
     """Establishes a connection to the SQLite database."""
@@ -67,13 +76,5 @@ def delete_project(project_id):
     conn.close()
 
 if __name__ == '__main__':
-    # This block runs when you execute database.py directly,
-    # useful for initial setup or testing.
     init_db()
-    print("Database initialized or already exists.")
-    # Example usage:
-    # add_project("My First Project", "/home/user/my_project_1")
-    # add_project("Another App", "C:\\Users\\user\\Documents\\another_app")
-    # projects = get_projects()
-    # for p in projects:
-    #     print(p)
+    print(f"Database initialized or already exists at: {DATABASE}")
