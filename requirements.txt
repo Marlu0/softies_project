@@ -5,4 +5,5 @@ markdown2
 vosk
 pyttsx3
 streamlit
+sounddevice
 Flask
