@@ -38,20 +38,20 @@
 
         <section class="project-options">
             <div class="option-card">
-                <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Folder" class="icon">
+                <img src="{{ url_for('static', filename='images/folder-icon.jpg') }}" alt="Folder" class="icon">
                 <span>Lab 1</span>
             </div>
             <div class="option-card">
-                <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Folder" class="icon">
+                <img src="{{ url_for('static', filename='images/folder-icon.jpg') }}" alt="Folder" class="icon">
                 <span>App.py</span>
             </div>
             <div class="option-card black-background">
-                <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Browse" class="icon">
+                <img src="{{ url_for('static', filename='images/browse-icon.jpg') }}" alt="Browse" class="icon">
                 <span>Browse</span>
             </div>
             {# Changed onclick to use url_for #}
             <div class="option-card create-new-project" onclick="window.location.href='{{ url_for('create_project_page') }}'">
-                <img src="{{ url_for('static', filename='images/plus-icon.png') }}" alt="Create New Project" class="icon">
+                <img src="{{ url_for('static', filename='images/plus-icon.jpg') }}" alt="Create New Project" class="icon">
                 <span>Create new project</span>
             </div>
         </section>
