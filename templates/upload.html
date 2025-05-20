@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Upload Files</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #ffffff, #ccffd9);
+            font-family: Arial, sans-serif;
+            display: flex;
+            height: 100vh;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            background-color: #7da87b;
+            padding: 40px;
+            border-radius: 25px;
+            position: relative;
+            width: 500px;
+            text-align: center;
+        }
+
+        .inner-box {
+            background-color: #a2c3a0;
+            padding: 30px;
+            border-radius: 20px;
+        }
+
+        .drop-area {
+            border: 2px solid #333;
+            background-color: #e8f4e6;
+            padding: 20px;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+
+        input[type="file"] {
+            display: none;
+        }
+
+        .icon-button {
+            font-size: 32px;
+            margin-bottom: 10px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-weight: bold;
+            background: #fff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+
+        .flash {
+            color: red;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <form method="POST" enctype="multipart/form-data">
+        <button class="close-button" onclick="window.history.back(); return false;">X</button>
+        <div class="inner-box">
+            <label for="file" class="drop-area">
+                <div class="icon-button">➕</div>
+                Drag & drop your files here
+            </label>
+            <input id="file" type="file" name="file" multiple onchange="this.form.submit();">
+            
+            <label for="file" class="drop-area">
+                <div class="icon-button">📁</div>
+                Or click to browse your device
+            </label>
+        </div>
+    </form>
+    <p>Supported: <code>.py, .js, .ts, .html, .css, .json, .zip</code></p>
+
+    {% with messages = get_flashed_messages() %}
+    {% if messages %}
+        <div class="flash">
+            {% for message in messages %}
+                <p>{{ message }}</p>
+            {% endfor %}
+        </div>
+    {% endif %}
+    {% endwith %}
+</div>
+
+<script>
+    document.querySelectorAll('.drop-area').forEach(area => {
+        area.addEventListener('click', () => document.getElementById('file').click());
+    });
+</script>
+</body>
+</html>

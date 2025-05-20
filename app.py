@@ -7,6 +7,7 @@ from tkinter import filedialog
 import json
 import threading # Import threading for running Flask in a separate thread
 import webview # Import pywebview
+from werkzeug.utils import secure_filename
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
 from src.database import init_db, add_project, get_projects, get_project_by_id, delete_project
@@ -17,6 +18,12 @@ app.secret_key = 'your_super_secret_key_here' # Keep this secret!
 # Initialize the database when the app starts
 with app.app_context():
     init_db()
+
+BASE_DIR = os.path.join(os.getcwd(), "projects")
+os.makedirs(BASE_DIR, exist_ok=True)
+
+# Allowed extenctions to upload
+ALLOWED_EXTENSIONS = {'.py', '.js', '.ts', '.html', '.css', '.json', '.zip', '.pdf', '.xcsx', '.docx'}
 
 # --- Flask Routes (remain largely the same) ---
 
@@ -66,6 +73,50 @@ def delete_project_route(project_id):
     else:
         flash('Project not found.', 'error')
         return jsonify({'success': False, 'message': 'Project not found.'}), 404
+    
+@app.route('/', methods=['GET', 'POST'])
+def index():
+    if request.method == 'POST':
+        project_name = request.form.get('project_name', '').strip()
+        if not project_name:
+            flash('Please enter a project name.')
+            return redirect(url_for('index'))
+
+        safe_name = "".join(c for c in project_name if c.isalnum() or c in (' ', '-', '_')).rstrip()
+        folder_path = os.path.join(BASE_DIR, safe_name)
+
+        try:
+            os.makedirs(folder_path, exist_ok=False)
+            flash(f'Project "{safe_name}" created successfully!')
+        except FileExistsError:
+            flash(f'Project "{safe_name}" already exists.')
+
+        return redirect(url_for('upload', project=safe_name))
+
+    return render_template('index.html')
+
+@app.route('/upload/<project>', methods=['GET', 'POST'])
+def upload(project):
+    project_path = os.path.join(BASE_DIR, secure_filename(project))
+
+    if request.method == 'POST':
+        if 'file' not in request.files:
+            flash('No file part.')
+            return redirect(request.url)
+
+        files = request.files.getlist('file')
+
+        for file in files:
+            if file and allowed_file(file.filename):
+                filename = secure_filename(file.filename)
+                file.save(os.path.join(project_path, filename))
+            else:
+                flash(f'File "{file.filename}" is not allowed.')
+
+        flash('Files uploaded successfully!')
+        return redirect(request.url)
+
+    return render_template('upload.html', project=project)
 
 # --- Pywebview Integration ---
 
