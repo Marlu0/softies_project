@@ -41,9 +41,11 @@ body {
 }
 
 .robot-icon {
+    border-radius: 50%;
     width: 100px; /* Adjust size as needed */
     height: 100px;
     margin-right: 20px;
+    object-fit: cover;;
     /* You'll need to create or find an SVG/PNG for the robot icon */
 }
 
