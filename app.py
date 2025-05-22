@@ -107,7 +107,7 @@ def upload(project):
         files = request.files.getlist('file')
 
         for file in files:
-            if file and allowed_file(file.filename):
+            if file and ALLOWED_EXTENSIONS(file.filename):
                 filename = secure_filename(file.filename)
                 file.save(os.path.join(project_path, filename))
             else:
