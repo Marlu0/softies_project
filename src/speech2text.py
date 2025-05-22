@@ -4,7 +4,7 @@ import json
 from vosk import Model, KaldiRecognizer
 
 # Path to your downloaded Vosk model directory
-MODEL_PATH = "models/vosk-model-small-en-us-0.15"
+MODEL_PATH = "../models/vosk-model-small-en-us-0.15"
 SAMPLE_RATE = 16000
 
 def listen_for_input(prompt="🎙️ Speak now (say 'stop' to quit):"):
