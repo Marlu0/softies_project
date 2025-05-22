@@ -75,6 +75,7 @@ def delete_project(project_id):
     conn.commit()
     conn.close()
 
+# Test the database initialization
 if __name__ == '__main__':
     init_db()
     print(f"Database initialized or already exists at: {DATABASE}")

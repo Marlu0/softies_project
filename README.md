@@ -12,3 +12,4 @@ python app.py
 - Franco Olano u233420
 - Nerea González u199125
 - Adrià López u233501
+- Berta Noguera u199893

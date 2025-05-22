@@ -3,6 +3,8 @@ import openpyxl
 import google.generativeai as genai
 import re
 
+# MACROS
+DEFAULT_MODEL_NAME = "gemini-2.0-flash"
 
 def remove_code_from_text(text):
     """
@@ -15,6 +17,9 @@ def remove_code_from_text(text):
     return text
 
 def create_context(folder_path):
+    """
+    Creates a context string for the AI model using the contents of files in the specified folder.
+    """
     prompt = "You are an AI expert in code analysis and improvement called Softy. Below is the content of several files from a project.\n"
     prompt += "Use this information as context to analyze, explain, correct, or improve code, according to the specific request in the following prompt provided by the user.\n\n"
     prompt += "File Contents:\n\n"
@@ -25,6 +30,9 @@ def create_context(folder_path):
     return prompt
 
 def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__file__), "blacklist.txt")):
+    """
+    Processes files in the given folder, reading their contents and handling blacklisted files.
+    """
     file_contents = {}
     blacklist = []
     try:
@@ -58,9 +66,10 @@ def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__fil
                 file_contents[file_path] = f"Error reading {file}: {e}"
     return file_contents
 
-DEFAULT_MODEL_NAME = "gemini-2.0-flash"
-
 def chat_with_context(folder_path, user_prompt, api_key, model_name=DEFAULT_MODEL_NAME):
+    """
+    Interacts with the model using the generated context and user prompt.
+    """
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(model_name)
@@ -74,5 +83,3 @@ def chat_with_context(folder_path, user_prompt, api_key, model_name=DEFAULT_MODE
         return original_response, modified_response
     except Exception as e:
         return f"Error generating response: {e}", f"Error generating response: {e}"
-
-

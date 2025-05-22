@@ -1,5 +1,5 @@
 from speech2text import listen_for_input  # Function to transcribe live mic input
-from context_creator import chat_with_context  # Function to get Gemini AI output
+from chatbot_handler import chat_with_context  # Function to get Gemini AI output
 from text2speech import speak_text  # Function to read text out loud
 from api_handler import get_api_key #function to get or request the user the api key
 

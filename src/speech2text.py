@@ -4,7 +4,7 @@ import json
 from vosk import Model, KaldiRecognizer
 
 # Path to your downloaded Vosk model directory
-MODEL_PATH = "models/vosk-model-small-en-us-0.15"
+VOICE_MODEL_PATH = "../models/vosk-model-small-en-us-0.15"
 SAMPLE_RATE = 16000
 
 def listen_for_input(prompt="🎙️ Speak now (say 'stop' to quit):"):
@@ -13,7 +13,7 @@ def listen_for_input(prompt="🎙️ Speak now (say 'stop' to quit):"):
     If the user says 'stop', returns the string 'stop'.
     """
     print("🔧 Loading Vosk model...")
-    model = Model(MODEL_PATH)
+    model = Model(VOICE_MODEL_PATH)
     recognizer = KaldiRecognizer(model, SAMPLE_RATE)
     recognizer.SetWords(True)
 
