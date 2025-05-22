@@ -46,6 +46,7 @@ def get_api_key():
 
     return api_key
 
+# Test the API key validation
 if __name__ == "__main__":
     api = get_api_key()
     print("API Key válida de Gemini obtenida y configurada.")
