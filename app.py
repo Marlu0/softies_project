@@ -119,6 +119,10 @@ def upload(project):
 
     return render_template('upload.html', project=project)
 
+@app.route('/settings')
+def settings():
+    return render_template('settings.html')
+
 # --- Pywebview Integration ---
 
 # Define a Python function to open the file dialog, exposed to JavaScript

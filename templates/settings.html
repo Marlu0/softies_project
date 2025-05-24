@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Settings</title>
+    <style>
+        body {
+            background: linear-gradient(to bottom, #ffffff, #ccffd9);
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        .settings-container {
+            background-color: #7da87b;
+            padding: 40px;
+            border-radius: 30px;
+            width: 700px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+        }
+
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+
+        .setting-item:hover {
+            text-decoration: underline;
+        }
+
+        .setting-icon {
+            background-color: #f5f9f5;
+            border-radius: 10px;
+            padding: 10px;
+            font-size: 20px;
+        }
+
+        .robot-img {
+            width: 250px;
+            height: auto;
+            border-radius: 30px;
+            background-color: #f0ede8;
+            padding: 30px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-weight: bold;
+            background: #fff;
+            padding: 5px 10px;
+            border: none;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="settings-container">
+        <button class="close-button" onclick="window.history.back(); return false;">X</button>
+        
+        <div class="settings-list">
+            <div class="setting-item" onclick="alert('API Key modal here!')">
+                <div class="setting-icon">🔑</div>
+                <span>API Key</span>
+            </div>
+
+            <div class="setting-item" onclick="alert('Blacklist modal here!')">
+                <div class="setting-icon">🔒</div>
+                <span>Blacklist Files</span>
+            </div>
+
+            <div class="setting-item" onclick="alert('Prompt text modal here!')">
+                <div class="setting-icon">📝</div>
+                <span>Prompt Text</span>
+            </div>
+
+            <a href="https://github.com/Marlu0/softies_project/blob/c91f801aeb4adc89a50efdb55ada744558b08b8d/HELP.md" target="_blank" class="setting-item" style="text-decoration: none; color: inherit;">
+                <div class="setting-icon">❓</div>
+                <span>Help Button</span>
+            </a>
+        </div>
+
+        <div class="robot-img">
+            <img src="{{ url_for('static', filename='robot.png') }}" alt="Robot Icon" style="width: 100%;">
+        </div>
+    </div>
+</body>
+</html>
