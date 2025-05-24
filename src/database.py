@@ -1,81 +1,170 @@
-# src/database.py
 import sqlite3
 import os
 
 # Determine the absolute path to the root directory (softy_app/)
-# This assumes database.py is in softy_app/src/
 ROOT_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-DATA_DIR = os.path.join(ROOT_DIR, 'data') # Path to the data directory
+DATA_DIR = os.path.join(ROOT_DIR, 'data')
 
-# Ensure the data directory exists
 if not os.path.exists(DATA_DIR):
     os.makedirs(DATA_DIR)
 
-# Database file will be inside the 'data' directory
 DATABASE = os.path.join(DATA_DIR, 'softy_projects.db')
 
 def get_db_connection():
-    """Establishes a connection to the SQLite database."""
     conn = sqlite3.connect(DATABASE)
-    conn.row_factory = sqlite3.Row # This allows access to columns by name
+    conn.row_factory = sqlite3.Row
     return conn
 
 def init_db():
-    """Initializes the database schema (creates the projects table if it doesn't exist)."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute('''
-        CREATE TABLE IF NOT EXISTS projects (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            name TEXT NOT NULL UNIQUE,
-            path TEXT NOT NULL UNIQUE
-        )
-    ''')
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS projects (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name VARCHAR NOT NULL UNIQUE,
+        path VARCHAR NOT NULL UNIQUE,
+        context_summary TEXT
+    )""")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS chat_messages (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        text TEXT,
+        time DATETIME DEFAULT CURRENT_TIMESTAMP,
+        project INTEGER,
+        FOREIGN KEY(project) REFERENCES projects(id)
+    )""")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS blacklist (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        type VARCHAR,
+        name VARCHAR,
+        path VARCHAR
+    )""")
+
+    cursor.execute("""CREATE TABLE IF NOT EXISTS api_keys (
+        name VARCHAR PRIMARY KEY,
+        key VARCHAR
+    )""")
+
     conn.commit()
     conn.close()
 
-def add_project(name, path):
-    """Adds a new project to the database."""
+# Create operations
+def create_project(name, path, context_summary=None):
     conn = get_db_connection()
-    cursor = conn.cursor()
     try:
-        cursor.execute("INSERT INTO projects (name, path) VALUES (?, ?)", (name, path))
+        conn.execute("INSERT INTO projects (name, path, context_summary) VALUES (?, ?, ?)", (name, path, context_summary))
         conn.commit()
-        return True
-    except sqlite3.IntegrityError:
-        # This means a project with that name or path already exists
-        return False
     finally:
         conn.close()
 
-def get_projects():
-    """Retrieves all projects from the database."""
+def create_api_key(name, key):
+    conn = get_db_connection()
+    try:
+        conn.execute("INSERT INTO api_keys (name, key) VALUES (?, ?)", (name, key))
+        conn.commit()
+    finally:
+        conn.close()
+
+def create_blacklist_record(type_, name, path):
+    conn = get_db_connection()
+    try:
+        conn.execute("INSERT INTO blacklist (type, name, path) VALUES (?, ?, ?)", (type_, name, path))
+        conn.commit()
+    finally:
+        conn.close()
+
+# Read operations
+def get_project_names():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, path FROM projects ORDER BY name ASC")
-    projects = cursor.fetchall()
+    cursor.execute("SELECT name FROM projects")
+    names = [row['name'] for row in cursor.fetchall()]
     conn.close()
-    # Convert Row objects to dictionaries for easier handling in Flask
-    return [dict(project) for project in projects]
+    return names
 
-def get_project_by_id(project_id):
-    """Retrieves a single project by its ID."""
+def get_blacklist_names():
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT id, name, path FROM projects WHERE id = ?", (project_id,))
-    project = cursor.fetchone()
+    cursor.execute("SELECT name FROM blacklist")
+    names = [row['name'] for row in cursor.fetchall()]
     conn.close()
-    return dict(project) if project else None
+    return names
 
+def get_project_path(project_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT path FROM projects WHERE id = ?", (project_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row['path'] if row else None
+
+def get_blacklist_path(record_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT path FROM blacklist WHERE id = ?", (record_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row['path'] if row else None
+
+def get_project_messages(project_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM chat_messages WHERE project = ? ORDER BY time", (project_id,))
+    messages = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return messages
+
+def get_api_keys():
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM api_keys")
+    keys = [dict(row) for row in cursor.fetchall()]
+    conn.close()
+    return keys
+
+# Delete operations
 def delete_project(project_id):
-    """Deletes a project from the database by its ID."""
     conn = get_db_connection()
-    cursor = conn.cursor()
-    cursor.execute("DELETE FROM projects WHERE id = ?", (project_id,))
-    conn.commit()
-    conn.close()
+    try:
+        conn.execute("DELETE FROM projects WHERE id = ?", (project_id,))
+        conn.commit()
+    finally:
+        conn.close()
 
-# Test the database initialization
+def delete_api_key(name):
+    conn = get_db_connection()
+    try:
+        conn.execute("DELETE FROM api_keys WHERE name = ?", (name,))
+        conn.commit()
+    finally:
+        conn.close()
+
+def delete_blacklist_record(record_id):
+    conn = get_db_connection()
+    try:
+        conn.execute("DELETE FROM blacklist WHERE id = ?", (record_id,))
+        conn.commit()
+    finally:
+        conn.close()
+
+# Update operations
+def update_api_key(name, new_key):
+    conn = get_db_connection()
+    try:
+        conn.execute("UPDATE api_keys SET key = ? WHERE name = ?", (new_key, name))
+        conn.commit()
+    finally:
+        conn.close()
+
+def update_project_context_summary(project_id, summary):
+    conn = get_db_connection()
+    try:
+        conn.execute("UPDATE projects SET context_summary = ? WHERE id = ?", (summary, project_id))
+        conn.commit()
+    finally:
+        conn.close()
+
 if __name__ == '__main__':
     init_db()
     print(f"Database initialized or already exists at: {DATABASE}")
