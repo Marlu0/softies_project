@@ -10,7 +10,8 @@ import webview # Import pywebview
 from werkzeug.utils import secure_filename
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
-from src.database import init_db, add_project, get_projects, get_project_by_id, delete_project
+from src.database import init_db, create_project, get_project_names, get_project_path, delete_project
+
 
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key_here' # Keep this secret!
@@ -29,7 +30,7 @@ ALLOWED_EXTENSIONS = {'.py', '.js', '.ts', '.html', '.css', '.json', '.zip', '.p
 
 @app.route('/')
 def home():
-    projects = get_projects()
+    projects = get_project_names()
     return render_template('index.html', projects=projects)
 
 @app.route('/create_project_page')
@@ -55,7 +56,7 @@ def add_selected_project():
 
     project_name = os.path.basename(project_path)
 
-    if add_project(project_name, project_path):
+    if create_project(project_name, project_path):
         flash(f'Project "{project_name}" added successfully!', 'success')
         return jsonify({'success': True, 'redirect_url': url_for('home')})
     else:
@@ -65,7 +66,7 @@ def add_selected_project():
 
 @app.route('/delete_project/<int:project_id>', methods=['POST'])
 def delete_project_route(project_id):
-    project = get_project_by_id(project_id)
+    project = get_project_path(project_id)
     if project:
         delete_project(project_id)
         flash(f'Project "{project["name"]}" removed successfully.', 'success')
