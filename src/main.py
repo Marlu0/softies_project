@@ -3,7 +3,7 @@ from chatbot_handler import chat_with_context  # Function to get Gemini AI outpu
 from text2speech import speak_text  # Function to read text out loud
 from api_handler import get_api_key #function to get or request the user the api key
 
-FOLDER_PATH = "test_folder"
+FOLDER_PATH = "path_to_folder"
 
 def main():
     api_key = get_api_key()
