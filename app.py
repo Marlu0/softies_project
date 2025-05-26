@@ -10,7 +10,7 @@ import webview # Import pywebview
 from werkzeug.utils import secure_filename
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
-from src.database import init_db, create_project, get_project_names, get_project_path, delete_project
+from src.database import init_db, create_project, get_project_names, get_project_path, delete_project, get_project_messages
 
 
 app = Flask(__name__)
@@ -37,6 +37,18 @@ def home():
 def create_project_page():
     flash('Project creation is handled by selecting a folder. Please click "Create new project" on the home page.', 'info')
     return redirect(url_for('home'))
+
+@app.route("/chat/<project_name>")
+def chat_project(project_name):
+    projects = get_project_names()
+    project_id = get_project_id_by_name(project_name)
+
+    if not project_id:
+        return "Proyecto no encontrado", 404
+
+    messages = get_project_messages(project_id)
+    return render_template("chat.html", project_name=project_name, projects=projects, messages=messages)
+
 
 # NO LONGER A FLASK ROUTE ACCESSED DIRECTLY FROM JS FETCH
 # @app.route('/select_project_folder', methods=['GET'])
