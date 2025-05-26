@@ -1,6 +1,6 @@
 import pyttsx3
 
-def speak_text(text: str, voice_index: int = 0, rate: int = 150, volume: float = 1.0):
+def speak_text(text: str, voice_index: int = 2, rate: int = 150, volume: float = 1.0):
     """
     Speak the given text aloud using the specified voice, rate, and volume.
 
