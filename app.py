@@ -26,6 +26,18 @@ os.makedirs(BASE_DIR, exist_ok=True)
 # Allowed extenctions to upload
 ALLOWED_EXTENSIONS = {'.py', '.js', '.ts', '.html', '.css', '.json', '.zip', '.pdf', '.xcsx', '.docx'}
 
+BLACKLIST_PATH = 'blacklist.json'
+
+def load_blacklist():
+    if os.path.exists(BLACKLIST_PATH):
+        with open(BLACKLIST_PATH) as f:
+            return json.load(f)
+    return []
+
+def save_blacklist(files):
+    with open(BLACKLIST_PATH, 'w') as f:
+        json.dump(files, f)
+
 # --- Flask Routes (remain largely the same) ---
 
 @app.route('/')
@@ -37,6 +49,7 @@ def home():
 def create_project_page():
     flash('Project creation is handled by selecting a folder. Please click "Create new project" on the home page.', 'info')
     return redirect(url_for('home'))
+
 
 # NO LONGER A FLASK ROUTE ACCESSED DIRECTLY FROM JS FETCH
 # @app.route('/select_project_folder', methods=['GET'])
@@ -121,7 +134,21 @@ def upload(project):
 
 @app.route('/settings')
 def settings():
+    blacklisted = load_blacklist()
     return render_template('settings.html')
+
+@app.route('/blacklist', methods=['POST'])
+def blacklist_files():
+    files = request.files.getlist('blacklist_files')
+    blacklist = load_blacklist()
+
+    for file in files:
+        filename = file.filename
+        if filename and filename not in blacklist:
+            blacklist.append(filename)
+
+    save_blacklist(blacklist)
+    return redirect(url_for('settings'))
 
 # --- Pywebview Integration ---
 
