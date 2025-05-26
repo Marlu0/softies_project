@@ -6,7 +6,7 @@ from chatbot_handler import chat_with_context  # Function to get Gemini AI outpu
 from text2speech import speak_text  # Function to read text out loud
 from api_handler import get_api_key #function to get or request the user the api key
 
-FOLDER_PATH = "test_folder"
+FOLDER_PATH = "C:/Users/marce/Documents/Code/softies_project/test/test_project"
 
 def main():
     """
@@ -28,8 +28,9 @@ def main():
 
         # 2. Pass the transcribed text and folder to Gemini
         # The chat_with_context function returns a single formatted string
-        full_ai_response_str = chat_with_context(FOLDER_PATH, user_input, api_key)
+        ai_response_tuple, full_ai_response_str = chat_with_context(FOLDER_PATH, user_input, api_key)
 
+        print(full_ai_response_str)
         # 3. Parse the AI response string into its components
         # Split the string by the markers --SPEAK--, --TEXT--, --WRITE--
         # re.split keeps the delimiters if they are captured in a group, but here we just want the content

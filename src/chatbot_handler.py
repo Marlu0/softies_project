@@ -35,6 +35,7 @@ def create_context(folder_path):
         for file_path, content in file_contents.items():
             prompt += f"--- {file_path} ---\n{content}\n\n"
 
+    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content>\n--TEXT--\n<text content>\n--WRITE--\n<code changes or suggestions>\n"
     prompt += "The following user prompt will contain the specific instructions for the code analysis:"
     return prompt
 
