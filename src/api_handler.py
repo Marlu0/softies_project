@@ -1,59 +1,88 @@
-import os
 import google.generativeai as genai
+from typing import Optional, List, Dict
 
-# Define the directory and full path for the API key file
-API_KEY_DIR = "../data"
-API_KEY_FILE = os.path.join(API_KEY_DIR, "api_key.txt")
+# ------------------------------------------------------------------
+# Funciones auxiliares que YA existen en tu proyecto
+# ------------------------------------------------------------------
+# from tu_módulo_bd import get_db_connection       # ← ya lo tienes
+# def create_api_key(name: str, key: str) -> None: ...
+# def get_api_keys() -> List[Dict[str, str]]: ...
+# ------------------------------------------------------------------
 
-def is_valid_api_key(api_key):
+
+# ---------- Validación -------------------------------------------------
+def is_valid_api_key(api_key: str) -> bool:
     """
-    Verifica si la API key es válida intentando inicializar un modelo de Gemini.
+    Comprueba si una API-Key de Gemini funciona inicializando la SDK.
     """
     try:
         genai.configure(api_key=api_key)
-        list(genai.list_models())  # Verifica autenticación
+        # La llamada a list_models() fuerza la autenticación.
+        _ = list(genai.list_models())
         return True
-    except Exception as e:
-        print(f"Error al validar la API key: {e}")
+    except Exception as exc:
+        print(f"❌  Error al validar la API-Key: {exc}")
         return False
 
-def read_api_key_from_file():
-    """Lee la API key desde el archivo."""
-    try:
-        with open(API_KEY_FILE, "r") as f:
-            return f.readline().strip()
-    except FileNotFoundError:
-        return None
 
-def save_api_key_to_file(api_key):
-    """Guarda la API key en el archivo."""
-    os.makedirs(API_KEY_DIR, exist_ok=True)
-    with open(API_KEY_FILE, "w") as f:
-        f.write(api_key + "\n")
-
-def get_api_key():
+# ---------- Almacenamiento / obtención ---------------------------------
+def _get_first_valid_db_key() -> Optional[str]:
     """
-    Obtiene la API key. Primero intenta leerla desde un archivo.
-    Si no existe o no es válida (comprobando con la API), se le pide al usuario y se guarda.
+    Devuelve la primera API-Key válida encontrada en la BD
+    (o None si ninguna es válida).
     """
-    api_key = read_api_key_from_file()
+    for row in get_api_keys():                       # [{'id':1,'name':'…','key':'…'}, …]
+        api_key = row["key"]
+        if is_valid_api_key(api_key):
+            print(f"✅  Usando API-Key '{row['name']}' almacenada en BD.")
+            return api_key
+    return None
 
-    while not api_key or not is_valid_api_key(api_key):
-        print("La API key no es válida o no se encontró.")
-        api_key = input("Por favor, introduce tu API key de Google Gemini: ").strip()
-        save_api_key_to_file(api_key)
-        genai.configure(api_key=api_key)
 
+def _store_api_key(name: str, api_key: str) -> None:
+    """
+    Guarda (o sobreescribe) una API-Key en la base de datos.
+    Si ya existe una fila con el mismo name puedes decidir actualizarla;
+    aquí simplemente insertamos una nueva fila.
+    """
+    create_api_key(name, api_key)
+    print(f"💾  API-Key guardada en BD con el nombre '{name}'.")
+
+
+# ---------- Orquestador principal -------------------------------------
+def get_api_key() -> str:
+    """
+    Obtiene una API-Key válida:
+    1. Busca en la BD y usa la primera que pase la validación.
+    2. Si no hay ninguna válida, la pide al usuario, la valida y la guarda.
+    """
+    api_key = _get_first_valid_db_key()
+
+    while not api_key:
+        print("No se encontró ninguna API-Key válida en la base de datos.")
+        api_key = input("Introduce tu API-Key de Google Gemini: ").strip()
+
+        if not is_valid_api_key(api_key):
+            print("La API-Key no es válida. Inténtalo de nuevo.\n")
+            api_key = None
+            continue
+
+        alias = input("Asigna un nombre/alias para esta clave (p. ej. 'personal'): ").strip() or "default"
+        _store_api_key(alias, api_key)
+
+    # Configuramos la SDK con la clave que finalmente tengamos
+    genai.configure(api_key=api_key)
     return api_key
 
-# Test the API key validation
+
+# ---------- Ejemplo de uso --------------------------------------------
 if __name__ == "__main__":
-    api = get_api_key()
-    print("API Key válida de Gemini obtenida y configurada.")
+    api_key = get_api_key()
+    print("\n🎉  API-Key válida configurada. Probando…\n")
 
     try:
-        model = genai.GenerativeModel('gemini-pro')
+        model = genai.GenerativeModel("gemini-pro")
         response = model.generate_content("¿Cuál es la capital de España?")
-        print(f"Respuesta de prueba: {response.text}")
-    except Exception as e:
-        print(f"Error al usar la API después de la validación: {e}")
+        print("Respuesta de prueba:", response.text)
+    except Exception as exc:
+        print(f"⚠️  Error al consumir la API tras configurar la clave: {exc}")

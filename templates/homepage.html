@@ -1,0 +1,209 @@
+<!DOCTYPE html> 
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Softy - Your Voice Assistant</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #e6f2e6, #ccf0cc);
+      color: #1c3e2e;
+      margin: 40px;
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+    }
+
+    /* Contenedor principal: fila con dos columnas iguales en altura */
+    .main-container {
+      display: flex;
+      justify-content: space-between;
+      width: 90%;
+      max-width: 900px;
+      gap: 40px;
+      align-items: stretch; /* fuerza misma altura */
+      height: 100%;
+      min-height: 800px; /* para que tenga altura suficiente */
+    }
+
+    /* Cada columna con imagen + texto/botón */
+    .column {
+      display: flex;
+      flex-direction: column;
+      align-items: center;      /* centra horizontalmente */
+      justify-content: flex-start; /* alinea arriba verticalmente */
+      height: 100%;
+    }
+
+    .softy-logo {
+      height: 700px;
+      user-select: none;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+    }
+
+    .softy-robot {
+      height: 350px;
+      border-radius: 50%;
+      background: #fff6e5;
+      padding: 40px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.12);
+      user-select: none;
+      margin-bottom: 8px;
+      flex-shrink: 0;
+
+      margin-top: 100px; /* Ajusta este valor para alinear verticalmente */
+    }
+
+    .no-projects-text {
+      font-size: 1.6rem;
+      max-width: 550px;
+      color: #2f4a31;
+      user-select: none;
+      line-height: 1.4;
+      text-align: center;
+      margin-top: 0;
+    }
+
+    .project-card.create-new-project {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      width: 350px;
+      transition: transform 0.2s ease, box-shadow 0.2s ease;
+      user-select: none;
+      padding: 10px 20px;
+      border-radius: 8px;
+      background-color: #f9fff9;
+      box-shadow: 2px 2px 10px rgba(0,0,0,0.1);
+      margin-top: 40px;
+    }
+
+    .project-card.create-new-project:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      background-color: #e6f7e6;
+    }
+
+    .project-card.create-new-project img {
+      width: 200px;
+      height: 200px;
+      object-fit: contain;
+      border-radius: 8px;
+      margin-right: 20px;
+      background-color: transparent;
+      box-shadow: none;
+      flex-shrink: 0;
+    }
+
+    .project-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #2f4a31;
+      white-space: normal;
+      user-select: none;
+    }
+
+    /* Responsive para móviles */
+    @media (max-width: 950px) {
+      .main-container {
+        flex-direction: column;
+        align-items: center;
+        min-height: auto;
+      }
+      .column {
+        width: 100%;
+        max-width: 500px;
+        margin-bottom: 30px;
+        height: auto;
+      }
+      .no-projects-text, .project-card.create-new-project {
+        text-align: center;
+        max-width: 100%;
+        width: auto;
+        margin-top: 0;
+      }
+      .project-card.create-new-project {
+        justify-content: center;
+      }
+      .project-card.create-new-project img {
+        margin-right: 0;
+        margin-bottom: 10px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <div class="main-container">
+
+    <div class="column">
+      <img src="{{ url_for('static', filename='images/softy-logo.png') }}" alt="Softy Logo" class="softy-logo" />
+      {% if not projects %}
+        <p class="no-projects-text">No projects loaded yet. Click "Create new project" to add one.</p>
+      {% endif %}
+    </div>
+
+    <div class="column">
+      <img src="{{ url_for('static', filename='images/softy-bot.jpg') }}" alt="Softy Robot" class="softy-robot" />
+      <div class="project-card create-new-project" id="createNewProjectCard" title="Create new project" tabindex="0" role="button" aria-label="Create new project">
+        <img src="{{ url_for('static', filename='images/folder-new.png') }}" alt="Create New Project Icon" />
+        <span class="project-name">Create new project</span>
+      </div>
+    </div>
+
+  </div>
+
+  <script>
+    const createCard = document.getElementById('createNewProjectCard');
+    createCard.addEventListener('click', async function() {
+      const flashesContainer = document.querySelector('.flashes');
+      if (flashesContainer) {
+        flashesContainer.innerHTML = '<li class="info">Opening folder selection dialog... Please wait.</li>';
+        flashesContainer.style.display = 'block';
+      }
+      try {
+        const folderPath = await pywebview.api.select_project_folder_dialog();
+        if (folderPath) {
+          const response = await fetch('/add_selected_project', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ path: folderPath }),
+          });
+          const addData = await response.json();
+          if (addData.success) {
+            window.location.href = addData.redirect_url;
+          } else {
+            if (flashesContainer) {
+              flashesContainer.innerHTML = `<li class="error">${addData.message}</li>`;
+              flashesContainer.style.display = 'block';
+            }
+          }
+        } else {
+          if (flashesContainer) {
+            flashesContainer.innerHTML = '<li class="info">Folder selection cancelled.</li>';
+            flashesContainer.style.display = 'block';
+            setTimeout(() => { flashesContainer.style.display = 'none'; }, 3000);
+          }
+        }
+      } catch (error) {
+        console.error('Error in folder selection process:', error);
+        if (flashesContainer) {
+          flashesContainer.innerHTML = '<li class="error">An error occurred during folder selection.</li>';
+          flashesContainer.style.display = 'block';
+        }
+      }
+    });
+
+    createCard.addEventListener('keypress', function(event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        createCard.click();
+      }
+    });
+  </script>
+
+</body>
+</html>
