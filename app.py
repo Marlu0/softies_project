@@ -4,7 +4,6 @@ import os
 import datetime
 import tkinter as tk
 from tkinter import filedialog
-import json
 import threading # Import threading for running Flask in a separate thread
 import webview # Import pywebview
 from werkzeug.utils import secure_filename
