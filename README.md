@@ -14,3 +14,4 @@ python app.py
 - Adrià López u233501
 - Berta Noguera u199893
 - Adrià Porta u215229
+- Francesc Baiget u232665

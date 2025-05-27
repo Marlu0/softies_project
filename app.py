@@ -29,17 +29,17 @@ os.makedirs(BASE_DIR, exist_ok=True)
 # Allowed extenctions to upload
 ALLOWED_EXTENSIONS = {'.py', '.js', '.ts', '.html', '.css', '.json', '.zip', '.pdf', '.xcsx', '.docx'}
 
-BLACKLIST_PATH = 'blacklist.json'
+BLACKLIST_FILE = 'blacklist.txt'
 
 def load_blacklist():
-    if os.path.exists(BLACKLIST_PATH):
-        with open(BLACKLIST_PATH) as f:
-            return json.load(f)
-    return []
+    if not os.path.exists(BLACKLIST_FILE):
+        return []
+    with open(BLACKLIST_FILE, 'r') as f:
+        return [line.strip() for line in f if line.strip()]
 
-def save_blacklist(files):
-    with open(BLACKLIST_PATH, 'w') as f:
-        json.dump(files, f)
+def add_to_blacklist(filename):
+    with open(BLACKLIST_FILE, 'a') as f:
+        f.write(f"{filename}\n")
 
 # --- Flask Routes (remain largely the same) ---
 
@@ -148,21 +148,18 @@ def upload(project):
 
 @app.route('/settings')
 def settings():
-    blacklisted = load_blacklist()
     return render_template('settings.html')
 
-@app.route('/blacklist', methods=['POST'])
-def blacklist_files():
-    files = request.files.getlist('blacklist_files')
-    blacklist = load_blacklist()
+@app.route('/blacklist', methods=['GET', 'POST'])
+def blacklist():
+    if request.method == 'POST':
+        filename = request.form.get('filename')
+        if filename:
+            add_to_blacklist(filename)
+        return redirect(url_for('blacklist'))
 
-    for file in files:
-        filename = file.filename
-        if filename and filename not in blacklist:
-            blacklist.append(filename)
-
-    save_blacklist(blacklist)
-    return redirect(url_for('settings'))
+    blacklist_items = load_blacklist()
+    return render_template('blacklist.html', blacklist=blacklist_items)
 
 # --- Pywebview Integration ---
 
