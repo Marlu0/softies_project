@@ -4,10 +4,10 @@ import os
 import datetime
 import tkinter as tk
 from tkinter import filedialog
-import json
 import threading # Import threading for running Flask in a separate thread
 import webview # Import pywebview
 from werkzeug.utils import secure_filename
+from routes_api_keys import bp_api_keys
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
 from src.database import init_db, create_project, get_all_projects, get_project_path, delete_project, get_project_messages, get_project_id_by_name
@@ -15,6 +15,8 @@ from src.database import init_db, create_project, get_all_projects, get_project_
 
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key_here' # Keep this secret!
+
+app.register_blueprint(bp_api_keys) #api key
 
 # Initialize the database when the app starts
 with app.app_context():
@@ -26,17 +28,17 @@ os.makedirs(BASE_DIR, exist_ok=True)
 # Allowed extenctions to upload
 ALLOWED_EXTENSIONS = {'.py', '.js', '.ts', '.html', '.css', '.json', '.zip', '.pdf', '.xcsx', '.docx'}
 
-BLACKLIST_PATH = 'blacklist.json'
+BLACKLIST_FILE = 'blacklist.txt'
 
 def load_blacklist():
-    if os.path.exists(BLACKLIST_PATH):
-        with open(BLACKLIST_PATH) as f:
-            return json.load(f)
-    return []
+    if not os.path.exists(BLACKLIST_FILE):
+        return []
+    with open(BLACKLIST_FILE, 'r') as f:
+        return [line.strip() for line in f if line.strip()]
 
-def save_blacklist(files):
-    with open(BLACKLIST_PATH, 'w') as f:
-        json.dump(files, f)
+def add_to_blacklist(filename):
+    with open(BLACKLIST_FILE, 'a') as f:
+        f.write(f"{filename}\n")
 
 # --- Flask Routes (remain largely the same) ---
 
@@ -145,21 +147,20 @@ def upload(project):
 
 @app.route('/settings')
 def settings():
-    blacklisted = load_blacklist()
-    return render_template('settings.html')
+    return render_template("settings.html",
+                           blacklisted=get_blacklist_names(),
+                           api_keys=get_api_keys())
 
-@app.route('/blacklist', methods=['POST'])
-def blacklist_files():
-    files = request.files.getlist('blacklist_files')
-    blacklist = load_blacklist()
+@app.route('/blacklist', methods=['GET', 'POST'])
+def blacklist():
+    if request.method == 'POST':
+        filename = request.form.get('filename')
+        if filename:
+            add_to_blacklist(filename)
+        return redirect(url_for('blacklist'))
 
-    for file in files:
-        filename = file.filename
-        if filename and filename not in blacklist:
-            blacklist.append(filename)
-
-    save_blacklist(blacklist)
-    return redirect(url_for('settings'))
+    blacklist_items = load_blacklist()
+    return render_template('blacklist.html', blacklist=blacklist_items)
 
 # --- Pywebview Integration ---
 
@@ -199,3 +200,4 @@ if __name__ == '__main__':
     # If pywebview closes, Flask thread might still be active.
     # This is a simple shutdown for development. For production, more robust handling.
     print("Application closed.")
+

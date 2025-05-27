@@ -31,6 +31,7 @@ def init_db():
         text TEXT,
         time DATETIME DEFAULT CURRENT_TIMESTAMP,
         project INTEGER,
+        sender VARCHAR,
         FOREIGN KEY(project) REFERENCES projects(id)
     )""")
 
@@ -58,15 +59,15 @@ def create_project(name, path, context_summary=None):
     finally:
         conn.close()
 
-def create_project_message(project_id, text):
+def create_project_message(project_id, text, sender='USER'):
     """Creates a chat message for a given project with the current timestamp."""
     conn = get_db_connection()
     cursor = conn.cursor()
     try:
         cursor.execute("""
-            INSERT INTO chat_messages (text, time, project)
-            VALUES (?, datetime('now'), ?)
-        """, (text, project_id))
+            INSERT INTO chat_messages (text, time, project, sender)
+            VALUES (?, datetime('now'), ?, ?)
+        """, (text, project_id, sender))
         conn.commit()
         return True
     except sqlite3.IntegrityError:

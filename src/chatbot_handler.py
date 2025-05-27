@@ -17,12 +17,15 @@ def remove_code_from_text(text):
     text = re.sub(r"`.*?`", "as shown in the code provided in the text box", text)
     return text
 
-def create_context(folder_path):
+def create_context(folder_path, is_first_prompt=False):
     """
     Creates a context string for the AI model using the contents of files in the specified folder.
     This context will be prepended to the user's prompt.
     """
-    prompt = "You are an AI expert in code analysis and improvement called Softy. When first prompted, you will introduce yourself. You will act friendly, and provide technical but easy to understand insights when asked. Below is the content of several files from a project.\n"
+    prompt = "You are an AI expert in code analysis and improvement called Softy. "
+    if is_first_prompt:
+        prompt += "This is the first time you're being prompted for this project. Introduce yourself. "
+    prompt += "You will act friendly, and provide technical but easy to understand insights when asked. Below is the content of several files from a project.\n"
     prompt += "Use this information as context to analyze, explain, correct, or improve code, according to the specific request in the following prompt provided by the user.\n\n"
     prompt += "File Contents:\n\n"
 
@@ -113,7 +116,7 @@ def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__fil
 
     return file_contents
 
-def chat_with_context(folder_path, user_prompt, api_key, model_name=DEFAULT_MODEL_NAME):
+def chat_with_context(folder_path, user_prompt, api_key, is_first_prompt=False, model_name=DEFAULT_MODEL_NAME):
     """
     Interacts with the AI model using the generated context and the user's prompt.
     Returns both the original response from the AI and a modified version with code snippets replaced.
@@ -121,7 +124,7 @@ def chat_with_context(folder_path, user_prompt, api_key, model_name=DEFAULT_MODE
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(model_name)
-    context = create_context(folder_path)
+    context = create_context(folder_path, is_first_prompt)
     full_prompt = f"{context}\n\nUser prompt: {user_prompt}"
 
     print("\n--- Full Prompt Sent to Model ---")
