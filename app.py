@@ -147,7 +147,9 @@ def upload(project):
 
 @app.route('/settings')
 def settings():
-    return render_template('settings.html')
+    return render_template("settings.html",
+                           blacklisted=get_blacklist_names(),
+                           api_keys=get_api_keys())
 
 @app.route('/blacklist', methods=['GET', 'POST'])
 def blacklist():
