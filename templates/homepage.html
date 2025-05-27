@@ -141,7 +141,17 @@
 
     <div class="column">
       <img src="{{ url_for('static', filename='images/softy-logo.png') }}" alt="Softy Logo" class="softy-logo" />
-      {% if not projects %}
+      {% if projects %}
+        {% for project in projects %}
+        <a href="{{ url_for('chat_project', project_name=project.name) }}" style="text-decoration: none; color: inherit;">
+          <div class="option-card" data-project-id="{{ project.id }}">
+            <img src="{{ url_for('static', filename='images/folder-icon.png') }}" alt="Folder" class="icon">
+            <span>{{ project.name }}</span>
+            <button class="delete-project-btn" data-project-id="{{ project.id }}">&#x2715;</button> 
+          </div>
+        </a>
+        {% endfor %}
+      {% else %}
         <p class="no-projects-text">No projects loaded yet. Click "Create new project" to add one.</p>
       {% endif %}
     </div>
@@ -203,6 +213,25 @@
         createCard.click();
       }
     });
+
+    document.querySelectorAll('.delete-project-btn').forEach(btn => {
+    btn.addEventListener('click', function(e) {
+      e.stopPropagation();  // Stop the event from bubbling up to the <a> tag
+      e.preventDefault();   // Prevent navigation
+      const projectId = this.dataset.projectId;
+      if (confirm('Are you sure you want to delete this project?')) {
+        fetch(`/delete_project/${projectId}`, { method: 'POST' })
+          .then(response => response.json())
+          .then(data => {
+            if (data.success) {
+              location.reload(); // Reload the page to update the list
+            } else {
+              alert(data.message || 'Error deleting project.');
+            }
+          });
+      }
+    });
+  });
   </script>
 
 </body>
