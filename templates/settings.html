@@ -80,32 +80,10 @@
                 <span>API Key</span>
             </div>
 
-            <div class="setting-item" onclick="toggleBlacklist()">
+            <a href="/blacklist" class="setting-item">
                 <div class="setting-icon">🔒</div>
                 <span>Blacklist Files</span>
-            </div>
-
-            <div class="blacklist-section">
-                <h2>Blacklist Files</h2>
-                <p style="text-align: center;">
-                    <em>Hide private or sensitive files from assistant responses.<br>
-                    These files will not be referenced or displayed.</em>
-                </p>
-                <form action="/blacklist" method="post" enctype="multipart/form-data" style="text-align:center; margin: 20px 0;">
-                    <input type="file" name="blacklist_files" multiple>
-                    <button type="submit">Add to Blacklist</button>
-                </form>
-                <div>
-                    <h4>Currently Blacklisted:</h4>
-                    <ul>
-                        {% for file in blacklisted %}
-                        <li>{{ file }}</li>
-                        {% else %}
-                        <li>No files blacklisted yet.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
+            </a>
 
             <div class="setting-item" onclick="alert('Prompt text modal here!')">
                 <div class="setting-icon">📝</div>
@@ -119,7 +97,7 @@
         </div>
 
         <div class="robot-img">
-            <img src="{{ url_for('static', filename='images/settings_robot.png') }}" alt="Robot Icon" style="width: 100%;">
+            <img src="{{ url_for('static', filename='images/settings-robot.png') }}" alt="Robot Icon" style="width: 100%;">
         </div>
     </div>
 </body>
