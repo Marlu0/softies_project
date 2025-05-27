@@ -17,6 +17,11 @@ def main():
     api_key = get_api_key()
     if api_key == "YOUR_GEMINI_API_KEY_HERE":
         print("Warning: Please set your GEMINI_API_KEY environment variable or replace 'YOUR_GEMINI_API_KEY_HERE' with your actual API key.")
+    
+    from database import get_project_id_by_name, get_project_messages
+
+    project_id = get_project_id_by_name("test_project")  # Or dynamically resolve from folder name
+    is_first_prompt = len(get_project_messages(project_id)) == 0
 
     while True:
         # 1. Listen to microphone until user says something (or "stop")
@@ -27,7 +32,7 @@ def main():
             break
 
         # 2. Pass the transcribed text and folder to Gemini
-        ai_response = chat_with_context(FOLDER_PATH, user_input, api_key)
+        ai_response = chat_with_context(FOLDER_PATH, user_input, api_key, is_first_prompt)
 
         # 3. Parse the AI response string into its components
         # Split the string by the markers --SPEAK--, --TEXT--, --WRITE--
