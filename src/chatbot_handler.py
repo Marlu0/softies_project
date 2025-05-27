@@ -39,7 +39,7 @@ def create_context(folder_path):
     prompt += "The following user prompt will contain the specific instructions for the code analysis:"
     return prompt
 
-def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__file__), "blacklist.txt")):
+def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__file__), "..", "data", "blacklist.txt")):
     """
     Processes files in the given folder, reading their contents.
     It identifies and reads common text/code files and Excel files.
