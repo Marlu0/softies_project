@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Chat - Softy</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+</head>
+<body>
+    <div class="container">
+        <aside class="sidebar">
+            <h2>Projects</h2>
+            <ul>
+                {% for project in projects %}
+                    <li class="{% if project == project_name %}active{% endif %}">
+                        <a href="{{ url_for('chat_project', project_name=project) }}">{{ project }}</a>
+                    </li>
+                {% endfor %}
+            </ul>
+            <div class="settings">⚙️ Settings</div>
+        </aside>
+
+        <main class="chat-area">
+            <header class="chat-header">
+                <h1>🤖 Softy</h1>
+            </header>
+
+            <section class="messages">
+                {% for msg in messages %}
+                    <div class="message {{ msg['sender'] }}">{{ msg['text'] }}</div>
+                {% endfor %}
+            </section>
+
+            <footer class="chat-input">
+                <input type="text" placeholder="Enter your message">
+            </footer>
+        </main>
+    </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const input = document.querySelector(".chat-input input");
+        const messagesContainer = document.querySelector(".messages");
+
+        input.addEventListener("keypress", function(e) {
+            if (e.key === "Enter" && input.value.trim() !== "") {
+                const text = input.value;
+
+                // Mensaje del usuario
+                const userMessage = document.createElement("div");
+                userMessage.className = "message user";
+                userMessage.textContent = text;
+                messagesContainer.appendChild(userMessage);
+
+                // Simular respuesta del bot (después de medio segundo)
+                setTimeout(() => {
+                    const botMessage = document.createElement("div");
+                    botMessage.className = "message bot";
+                    botMessage.textContent = "🤖 Softy: " + generateFakeResponse(text);
+                    messagesContainer.appendChild(botMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                }, 500);
+
+                input.value = "";
+                messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            }
+        });
+
+        function generateFakeResponse(text) {
+            return "Has dicho: \"" + text + "\"";
+        }
+    });
+    </script>
+</body>
+</html>

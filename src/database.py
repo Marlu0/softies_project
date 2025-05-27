@@ -58,6 +58,23 @@ def create_project(name, path, context_summary=None):
     finally:
         conn.close()
 
+def create_project_message(project_id, text):
+    """Creates a chat message for a given project with the current timestamp."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("""
+            INSERT INTO chat_messages (text, time, project)
+            VALUES (?, datetime('now'), ?)
+        """, (text, project_id))
+        conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        # Invalid project ID or other DB constraint issue
+        return False
+    finally:
+        conn.close()
+
 def create_api_key(name, key):
     conn = get_db_connection()
     try:
@@ -75,13 +92,35 @@ def create_blacklist_record(type_, name, path):
         conn.close()
 
 # Read operations
-def get_project_names():
+
+def get_all_projects():
+    conn = get_db_connection()
+    projects = conn.execute("SELECT id, name FROM projects").fetchall()
+    conn.close()
+    return projects
+
+def get_all_project_names():
+    conn = get_db_connection()
+    projects = conn.execute("SELECT name FROM projects").fetchall()
+    conn.close()
+    return projects
+
+def get_project_by_id(project_id):
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT name FROM projects")
-    names = [row['name'] for row in cursor.fetchall()]
+    cursor.execute("SELECT * FROM projects where id = ?", (project_id,))
+    project = cursor.fetchone()
     conn.close()
-    return names
+    return project
+
+def get_project_id_by_name(project_name):
+    """Returns the project ID for a given project name."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT id FROM projects WHERE name = ?", (project_name,))
+    result = cursor.fetchone()
+    conn.close()
+    return result["id"] if result else None
 
 def get_blacklist_names():
     conn = get_db_connection()
@@ -124,6 +163,13 @@ def get_api_keys():
     return keys
 
 # Delete operations
+
+def delete_project_messages(project_id):
+    conn = get_db_connection()
+    conn.execute("DELETE FROM messages WHERE project_id = ?", (project_id,))
+    conn.commit()
+    conn.close()
+
 def delete_project(project_id):
     conn = get_db_connection()
     try:

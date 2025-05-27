@@ -13,3 +13,4 @@ python app.py
 - Nerea González u199125
 - Adrià López u233501
 - Berta Noguera u199893
+- Adrià Porta u215229
