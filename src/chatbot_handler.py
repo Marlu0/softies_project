@@ -22,7 +22,7 @@ def create_context(folder_path):
     Creates a context string for the AI model using the contents of files in the specified folder.
     This context will be prepended to the user's prompt.
     """
-    prompt = "You are an AI expert in code analysis and improvement called Softy. Below is the content of several files from a project.\n"
+    prompt = "You are an AI expert in code analysis and improvement called Softy. When first prompted, you will introduce yourself. You will act friendly, and provide technical but easy to understand insights when asked. Below is the content of several files from a project.\n"
     prompt += "Use this information as context to analyze, explain, correct, or improve code, according to the specific request in the following prompt provided by the user.\n\n"
     prompt += "File Contents:\n\n"
 
@@ -35,7 +35,7 @@ def create_context(folder_path):
         for file_path, content in file_contents.items():
             prompt += f"--- {file_path} ---\n{content}\n\n"
 
-    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content>\n--TEXT--\n<text content>\n--WRITE--\n<code changes or suggestions>\n"
+    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content>\n--TEXT--\n<content that should be written in the chat with the AI>\n--WRITE--\n<code changes or suggestions>\n"
     prompt += "The following user prompt will contain the specific instructions for the code analysis:"
     return prompt
 
@@ -132,7 +132,10 @@ def chat_with_context(folder_path, user_prompt, api_key, model_name=DEFAULT_MODE
         response = model.generate_content(full_prompt)
         original_response = response.text
         modified_response = remove_code_from_text(original_response)
-        return original_response, modified_response
+        parts = re.split(r'--SPEAK--\n|--TEXT--\n|--WRITE--\n', modified_response, flags=re.DOTALL)
+        speak_text = parts[1].strip() if len(parts) > 1 else ""
+        chat = parts[2].strip() if len(parts) > 2 else ""
+        write = parts[3].strip() if len(parts) > 3 else ""
+        return {"speak_text": speak_text, "chat": chat, "write": write}
     except Exception as e:
-        return f"Error generating response: {e}", f"Error generating response: {e}"
-
+        return {"speak_text": "", "chat": f"Error generating response: {e}", "write": ""}

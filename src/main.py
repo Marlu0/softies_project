@@ -27,21 +27,15 @@ def main():
             break
 
         # 2. Pass the transcribed text and folder to Gemini
-        # The chat_with_context function returns a single formatted string
-        ai_response_tuple, full_ai_response_str = chat_with_context(FOLDER_PATH, user_input, api_key)
+        ai_response = chat_with_context(FOLDER_PATH, user_input, api_key)
 
-        print(full_ai_response_str)
         # 3. Parse the AI response string into its components
         # Split the string by the markers --SPEAK--, --TEXT--, --WRITE--
         # re.split keeps the delimiters if they are captured in a group, but here we just want the content
-        parts = re.split(r'--SPEAK--\n|--TEXT--\n|--WRITE--\n', full_ai_response_str, flags=re.DOTALL)
+        speak_content = ai_response.get("speak_text", "")
+        text_content = ai_response.get("chat", "")
+        write_content = ai_response.get("write", "")
 
-        # The parts list will typically contain ['', speak_content, text_content, write_content]
-        # We need to handle cases where a section might be empty or missing.
-        # The first element is usually empty due to the split at the beginning.
-        speak_content = parts[1].strip() if len(parts) > 1 else ""
-        text_content = parts[2].strip() if len(parts) > 2 else ""
-        write_content = parts[3].strip() if len(parts) > 3 else ""
 
         print(f"\n--- AI Response (Full Text) ---\n{text_content}\n-------------------------------\n")
 
