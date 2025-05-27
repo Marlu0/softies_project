@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Blacklist Files</title>
+    <style>
+        body { font-family: sans-serif; padding: 40px; background: #fffdeb; }
+        .container { background: white; padding: 30px; border-radius: 10px; width: 400px; margin: auto; }
+        h1 { text-align: center; }
+        ul { padding: 0; list-style-type: none; }
+        li { padding: 5px 0; }
+        input, button { margin-top: 10px; padding: 8px; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Blacklist Files</h1>
+        <p>Enter a file name to blacklist:</p>
+        <form method="POST">
+            <input type="text" name="filename" placeholder="e.g., secrets.json" required>
+            <button type="submit">Add to Blacklist</button>
+        </form>
+
+        <h3>Current Blacklist:</h3>
+        <ul>
+            {% for file in blacklist %}
+                <li>📁 {{ file }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
