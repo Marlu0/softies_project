@@ -10,7 +10,7 @@ import webview # Import pywebview
 from werkzeug.utils import secure_filename
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
-from src.database import init_db, create_project, get_project_names, get_project_path, delete_project, get_project_messages, get_project_id_by_name
+from src.database import init_db, create_project, get_all_projects, get_project_path, delete_project, get_project_messages, get_project_id_by_name
 
 
 app = Flask(__name__)
@@ -42,7 +42,7 @@ def save_blacklist(files):
 
 @app.route('/')
 def home():
-    projects = get_project_names()
+    projects = get_all_projects()
     return render_template('homepage.html', projects=projects)
 
 @app.route('/create_project_page')
@@ -52,7 +52,7 @@ def create_project_page():
 
 @app.route("/chat/<project_name>")
 def chat_project(project_name):
-    projects = get_project_names()
+    projects = get_all_projects()
     project_id = get_project_id_by_name(project_name)
 
     if not project_id:
