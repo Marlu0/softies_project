@@ -31,7 +31,7 @@ ALLOWED_EXTENSIONS = {'.py', '.js', '.ts', '.html', '.css', '.json', '.zip', '.p
 @app.route('/')
 def home():
     projects = get_project_names()
-    return render_template('index.html', projects=projects)
+    return render_template('homepage.html', projects=projects)
 
 @app.route('/create_project_page')
 def create_project_page():
@@ -94,7 +94,7 @@ def index():
 
         return redirect(url_for('upload', project=safe_name))
 
-    return render_template('index.html')
+    return render_template('homepage.html')
 
 @app.route('/upload/<project>', methods=['GET', 'POST'])
 def upload(project):
