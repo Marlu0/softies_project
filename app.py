@@ -10,7 +10,7 @@ import webview # Import pywebview
 from werkzeug.utils import secure_filename
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
-from src.database import init_db, create_project, get_project_names, get_project_path, delete_project, get_project_messages
+from src.database import init_db, create_project, get_project_names, get_project_path, delete_project, get_project_messages, get_project_id_by_name
 
 
 app = Flask(__name__)
