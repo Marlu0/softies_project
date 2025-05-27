@@ -8,6 +8,7 @@ import json
 import threading # Import threading for running Flask in a separate thread
 import webview # Import pywebview
 from werkzeug.utils import secure_filename
+from routes_api_keys import bp_api_keys
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
 from src.database import init_db, create_project, get_all_projects, get_project_path, delete_project, get_project_messages, get_project_id_by_name
@@ -15,6 +16,8 @@ from src.database import init_db, create_project, get_all_projects, get_project_
 
 app = Flask(__name__)
 app.secret_key = 'your_super_secret_key_here' # Keep this secret!
+
+app.register_blueprint(bp_api_keys) #api key
 
 # Initialize the database when the app starts
 with app.app_context():
@@ -199,3 +202,4 @@ if __name__ == '__main__':
     # If pywebview closes, Flask thread might still be active.
     # This is a simple shutdown for development. For production, more robust handling.
     print("Application closed.")
+

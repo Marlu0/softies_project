@@ -1,133 +1,309 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Settings</title>
     <style>
-        body {
-            background: linear-gradient(to bottom, #ffffff, #ccffd9);
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-        }
+      /* --------------------  GENERAL LAYOUT  -------------------- */
+      body {
+        background: linear-gradient(to bottom, #ffffff, #ccffd9);
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+      }
 
-        .settings-container {
-            background-color: #7da87b;
-            padding: 40px;
-            border-radius: 30px;
-            width: 700px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            position: relative;
-        }
+      .settings-container {
+        background-color: #7da87b;
+        padding: 40px;
+        border-radius: 30px;
+        width: 700px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        position: relative;
+      }
 
-        .settings-list {
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
+      /* --------------------  SETTINGS LIST  -------------------- */
+      .settings-list {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+      }
 
-        .setting-item {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-            font-size: 18px;
-            font-weight: 500;
-            cursor: pointer;
-        }
+      .setting-item {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        font-size: 18px;
+        font-weight: 500;
+        cursor: pointer;
+      }
 
-        .setting-item:hover {
-            text-decoration: underline;
-        }
+      .setting-item:hover {
+        text-decoration: underline;
+      }
 
-        .setting-icon {
-            background-color: #f5f9f5;
-            border-radius: 10px;
-            padding: 10px;
-            font-size: 20px;
-        }
+      .setting-icon {
+        background-color: #f5f9f5;
+        border-radius: 10px;
+        padding: 10px;
+        font-size: 20px;
+      }
 
-        .robot-img {
-            width: 250px;
-            height: auto;
-            border-radius: 30px;
-            background-color: #f0ede8;
-            padding: 30px;
-        }
+      /* --------------------  ROBOT IMAGE  -------------------- */
+      .robot-img {
+        width: 250px;
+        height: auto;
+        border-radius: 30px;
+        background-color: #f0ede8;
+        padding: 30px;
+      }
 
-        .close-button {
-            position: absolute;
-            top: 15px;
-            right: 20px;
-            font-weight: bold;
-            background: #fff;
-            padding: 5px 10px;
-            border: none;
-            cursor: pointer;
-        }
+      /* --------------------  CLOSE BUTTON  -------------------- */
+      .close-button {
+        position: absolute;
+        top: 15px;
+        right: 20px;
+        font-weight: bold;
+        background: #fff;
+        padding: 5px 10px;
+        border: none;
+        cursor: pointer;
+      }
+
+      /* --------------------  BLACKLIST SECTION  -------------------- */
+      .blacklist-section {
+        display: none; /* oculto por defecto */
+        margin-top: 25px;
+      }
+
+      /* --------------------  MODAL (API-KEY)  -------------------- */
+      #apiKeyModal {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: none; /* visible con JS */
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+      }
+
+      #apiKeyModal .modal-content {
+        background: #ffffff;
+        border-radius: 20px;
+        padding: 30px 40px;
+        width: 320px;
+        position: relative;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+      }
+
+      #apiKeyModal .modal-content h2 {
+        margin-top: 0;
+      }
+
+      #apiKeyModal label {
+        display: block;
+        margin-top: 10px;
+        font-size: 14px;
+      }
+
+      #apiKeyModal input[type="text"] {
+        width: 100%;
+        padding: 8px 10px;
+        margin-top: 4px;
+        border: 1px solid #ccc;
+        border-radius: 8px;
+      }
+
+      #apiKeyModal button.save {
+        margin-top: 15px;
+        padding: 8px 16px;
+        border: none;
+        border-radius: 20px;
+        background: #7da87b;
+        color: #fff;
+        cursor: pointer;
+        font-weight: bold;
+      }
+
+      #apiKeyModal button.close {
+        position: absolute;
+        top: 10px;
+        right: 15px;
+        background: none;
+        border: none;
+        font-size: 18px;
+        cursor: pointer;
+      }
+
+      #statusMsg {
+        font-size: 14px;
+        margin-top: 10px;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="settings-container">
-        <button class="close-button" onclick="window.history.back(); return false;">X</button>
-        
-        <div class="settings-list">
-            <div class="setting-item" onclick="alert('API Key modal here!')">
-                <div class="setting-icon">🔑</div>
-                <span>API Key</span>
-            </div>
+      <button class="close-button" onclick="window.history.back(); return false;">X</button>
 
-            <div class="setting-item" onclick="toggleBlacklist()">
-                <div class="setting-icon">🔒</div>
-                <span>Blacklist Files</span>
-            </div>
-
-            <div class="blacklist-section">
-                <h2>Blacklist Files</h2>
-                <p style="text-align: center;">
-                    <em>Hide private or sensitive files from assistant responses.<br>
-                    These files will not be referenced or displayed.</em>
-                </p>
-                <form action="/blacklist" method="post" enctype="multipart/form-data" style="text-align:center; margin: 20px 0;">
-                    <input type="file" name="blacklist_files" multiple>
-                    <button type="submit">Add to Blacklist</button>
-                </form>
-                <div>
-                    <h4>Currently Blacklisted:</h4>
-                    <ul>
-                        {% for file in blacklisted %}
-                        <li>{{ file }}</li>
-                        {% else %}
-                        <li>No files blacklisted yet.</li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-
-            <div class="setting-item" onclick="alert('Prompt text modal here!')">
-                <div class="setting-icon">📝</div>
-                <span>Prompt Text</span>
-            </div>
-
-            <a href="https://github.com/Marlu0/softies_project/blob/c91f801aeb4adc89a50efdb55ada744558b08b8d/HELP.md" target="_blank" class="setting-item" style="text-decoration: none; color: inherit;">
-                <div class="setting-icon">❓</div>
-                <span>Help Button</span>
-            </a>
+      <!-- -------------  SETTINGS LIST  ------------- -->
+      <div class="settings-list">
+        <!-- API-KEY -->
+        <div class="setting-item" onclick="openModal()">
+          <div class="setting-icon">🔑</div>
+          <span>API Key</span>
         </div>
 
-        <div class="robot-img">
-            <img src="{{ url_for('static', filename='images/settings_robot.png') }}" alt="Robot Icon" style="width: 100%;">
+        <!-- BLACKLIST -->
+        <div class="setting-item" onclick="toggleBlacklist()">
+          <div class="setting-icon">🔒</div>
+          <span>Blacklist Files</span>
         </div>
+
+        <!-- PROMPT TEXT -->
+        <div class="setting-item" onclick="alert('Prompt text modal here!')">
+          <div class="setting-icon">📝</div>
+          <span>Prompt Text</span>
+        </div>
+
+        <!-- HELP -->
+        <a
+          href="https://github.com/Marlu0/softies_project/blob/c91f801aeb4adc89a50efdb55ada744558b08b8d/HELP.md"
+          target="_blank"
+          class="setting-item"
+          style="text-decoration: none; color: inherit;"
+        >
+          <div class="setting-icon">❓</div>
+          <span>Help Button</span>
+        </a>
+
+        <!-- ------------  BLACKLIST SECTION (oculto)  ------------ -->
+        <div id="blacklist-section" class="blacklist-section">
+          <h2>Blacklist Files</h2>
+          <p style="text-align: center;">
+            <em>
+              Hide private or sensitive files from assistant responses.<br />These files
+              will not be referenced or displayed.
+            </em>
+          </p>
+          <form
+            action="/blacklist"
+            method="post"
+            enctype="multipart/form-data"
+            style="text-align: center; margin: 20px 0;"
+          >
+            <input type="file" name="blacklist_files" multiple />
+            <button type="submit">Add to Blacklist</button>
+          </form>
+          <div>
+            <h4>Currently Blacklisted:</h4>
+            <ul>
+              {% for file in blacklisted %}
+              <li>{{ file }}</li>
+              {% else %}
+              <li>No files blacklisted yet.</li>
+              {% endfor %}
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ROBOT -->
+      <div class="robot-img">
+        <img
+          src="{{ url_for('static', filename='images/settings_robot.png') }}"
+          alt="Robot Icon"
+          style="width: 100%;"
+        />
+      </div>
     </div>
-</body>
-</html>
 
-<script>
-function toggleBlacklist() {
-    const section = document.getElementById('blacklist-section');
-    section.style.display = section.style.display === 'none' ? 'block' : 'none';
-}
-</script>
+    <!-- -------------  API-KEY MODAL  ------------- -->
+    <div id="apiKeyModal">
+      <div class="modal-content">
+        <button class="close" onclick="closeModal()">✖️</button>
+        <h2>Nueva API-Key</h2>
+
+        <label>
+          Alias
+          <input id="aliasInput" type="text" placeholder="personal" />
+        </label>
+        <label>
+          Clave
+          <input id="keyInput" type="text" placeholder="AIza..." />
+        </label>
+
+        <button class="save" onclick="saveApiKey()">Guardar</button>
+        <p id="statusMsg"></p>
+      </div>
+    </div>
+
+    <script>
+      /* --------------------  BLACKLIST TOGGLE  -------------------- */
+      function toggleBlacklist() {
+        const section = document.getElementById("blacklist-section");
+        section.style.display = section.style.display === "block" ? "none" : "block";
+      }
+
+      /* --------------------  MODAL HANDLERS  -------------------- */
+      function openModal() {
+        document.getElementById("apiKeyModal").style.display = "flex";
+      }
+
+      function closeModal() {
+        document.getElementById("apiKeyModal").style.display = "none";
+        // reset campos y mensaje
+        document.getElementById("aliasInput").value = "";
+        document.getElementById("keyInput").value = "";
+        document.getElementById("statusMsg").textContent = "";
+      }
+
+      /* --------------------  SAVE API-KEY (AJAX)  -------------------- */
+      async function saveApiKey() {
+        const alias = document.getElementById("aliasInput").value.trim() || "default";
+        const key = document.getElementById("keyInput").value.trim();
+        const msgEl = document.getElementById("statusMsg");
+        msgEl.style.color = "red";
+        msgEl.textContent = "";
+
+        if (!key) {
+          msgEl.textContent = "La clave no puede estar vacía.";
+          return;
+        }
+
+        try {
+          const rsp = await fetch("/api/api_keys/", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ name: alias, key }),
+          });
+
+          if (!rsp.ok) {
+            const errText = await rsp.text();
+            throw new Error(errText || rsp.statusText);
+          }
+
+          msgEl.style.color = "green";
+          msgEl.textContent = "Clave guardada ✔️";
+          setTimeout(() => {
+            closeModal();
+            location.reload(); // opcional: recargar para actualizar la lista
+          }, 800);
+        } catch (err) {
+          msgEl.textContent = err.message || "Error";
+        }
+      }
+
+      /* --------------------  DELETE API-KEY  -------------------- */
+      async function deleteKey(name) {
+        if (!confirm(`Eliminar la clave «${name}»?`)) return;
+        await fetch(`/api/api_keys/${name}`, { method: "DELETE" });
+        location.reload();
+      }
+    </script>
+  </body>
+</html>
