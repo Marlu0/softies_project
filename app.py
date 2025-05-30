@@ -7,7 +7,7 @@ from tkinter import filedialog
 import threading # Import threading for running Flask in a separate thread
 import webview # Import pywebview
 from werkzeug.utils import secure_filename
-from routes_api_keys import bp_api_keys
+from src.routes_api_keys import bp_api_keys
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
 from src.database import init_db, create_project, get_all_projects, get_project_path, delete_project, get_project_messages, get_project_id_by_name

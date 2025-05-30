@@ -1,8 +1,8 @@
 # routes_api_keys.py  (o donde tengas tus rutas)
 
 from flask import Blueprint, request, jsonify, abort
-from database import get_api_keys, create_api_key, update_api_key, delete_api_key  # ya los tienes
-from api_handler import is_valid_api_key                      # tu función de validación
+from src.database import get_api_keys, create_api_key, update_api_key, delete_api_key  # ya los tienes
+from src.api_handler import is_valid_api_key                      # tu función de validación
 
 bp_api_keys = Blueprint("api_keys", __name__, url_prefix="/api/api_keys")
 

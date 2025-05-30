@@ -1,6 +1,6 @@
 import google.generativeai as genai
 from typing import Optional, List, Dict
-from database import get_api_keys, create_api_key
+from src.database import get_api_keys, create_api_key
 
 # ------------------------------------------------------------------
 # Funciones auxiliares que YA existen en tu proyecto
