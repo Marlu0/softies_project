@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from src.routes_api_keys import bp_api_keys
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
-from src.database import init_db, create_project, get_all_projects, get_project_path, delete_project, get_project_messages, get_project_id_by_name
+from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys
 
 
 app = Flask(__name__)
@@ -92,7 +92,7 @@ def add_selected_project():
 
 @app.route('/delete_project/<int:project_id>', methods=['POST'])
 def delete_project_route(project_id):
-    project = get_project_path(project_id)
+    project = get_project_by_id(project_id)
     if project:
         delete_project(project_id)
         flash(f'Project "{project["name"]}" removed successfully.', 'success')

@@ -56,6 +56,9 @@ def create_project(name, path, context_summary=None):
     try:
         conn.execute("INSERT INTO projects (name, path, context_summary) VALUES (?, ?, ?)", (name, path, context_summary))
         conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
     finally:
         conn.close()
 
@@ -71,7 +74,6 @@ def create_project_message(project_id, text, sender='USER'):
         conn.commit()
         return True
     except sqlite3.IntegrityError:
-        # Invalid project ID or other DB constraint issue
         return False
     finally:
         conn.close()
@@ -81,6 +83,9 @@ def create_api_key(name, key):
     try:
         conn.execute("INSERT INTO api_keys (name, key) VALUES (?, ?)", (name, key))
         conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
     finally:
         conn.close()
 
@@ -89,6 +94,9 @@ def create_blacklist_record(type_, name, path):
     try:
         conn.execute("INSERT INTO blacklist (type, name, path) VALUES (?, ?, ?)", (type_, name, path))
         conn.commit()
+        return True
+    except sqlite3.IntegrityError:
+        return False
     finally:
         conn.close()
 
@@ -199,16 +207,18 @@ def delete_blacklist_record(record_id):
 def update_api_key(name, new_key):
     conn = get_db_connection()
     try:
-        conn.execute("UPDATE api_keys SET key = ? WHERE name = ?", (new_key, name))
+        result = conn.execute("UPDATE api_keys SET key = ? WHERE name = ?", (new_key, name))
         conn.commit()
+        return result.rowcount > 0
     finally:
         conn.close()
 
 def update_project_context_summary(project_id, summary):
     conn = get_db_connection()
     try:
-        conn.execute("UPDATE projects SET context_summary = ? WHERE id = ?", (summary, project_id))
+        result = conn.execute("UPDATE projects SET context_summary = ? WHERE id = ?", (summary, project_id))
         conn.commit()
+        return result.rowcount > 0
     finally:
         conn.close()
 
