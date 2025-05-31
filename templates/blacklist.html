@@ -3,29 +3,142 @@
 <head>
     <title>Blacklist Files</title>
     <style>
-        body { font-family: sans-serif; padding: 40px; background: #fffdeb; }
-        .container { background: white; padding: 30px; border-radius: 10px; width: 400px; margin: auto; }
-        h1 { text-align: center; }
-        ul { padding: 0; list-style-type: none; }
-        li { padding: 5px 0; }
-        input, button { margin-top: 10px; padding: 8px; width: 100%; }
+        body { 
+            font-family: sans-serif; 
+            padding: 40px; 
+            background: #fffdeb; 
+            color: #333;
+        }
+        .container { 
+            background: white; 
+            padding: 30px; 
+            border-radius: 10px; 
+            width: 400px; 
+            margin: auto;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 { 
+            text-align: center; 
+            margin-bottom: 25px;
+            color: #2c2c2c;
+        }
+        ul { 
+            padding: 0; 
+            list-style-type: none; 
+            margin-top: 20px;
+        }
+        li { 
+            padding: 10px 15px;
+            margin: 5px 0;
+            background: #fffdeb;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        li:hover {
+            background: #fff5d6;
+        }
+        .delete-btn {
+            background: none;
+            border: none;
+            color: #ff6b6b;
+            cursor: pointer;
+            padding: 5px;
+            margin: 0;
+            width: auto;
+            font-size: 16px;
+        }
+        .delete-btn:hover {
+            color: #ff4444;
+        }
+        .form-group {
+            margin: 20px 0;
+        }
+        input { 
+            margin: 10px 0;
+            padding: 12px;
+            width: 100%;
+            border: 2px solid #eee;
+            border-radius: 6px;
+            box-sizing: border-box;
+            font-size: 14px;
+        }
+        input:focus {
+            outline: none;
+            border-color: #ffd700;
+        }
+        button[type="submit"] { 
+            margin-top: 10px;
+            padding: 12px;
+            width: 100%;
+            background: #ffd700;
+            border: none;
+            border-radius: 6px;
+            color: #2c2c2c;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s ease;
+        }
+        button[type="submit"]:hover {
+            background: #ffed4a;
+        }
+        .description {
+            text-align: center;
+            color: #666;
+            margin: 15px 0;
+            line-height: 1.5;
+        }
+        .empty-state {
+            text-align: center;
+            color: #888;
+            font-style: italic;
+            padding: 20px;
+        }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>Blacklist Files</h1>
-        <p>Enter a file name to blacklist:</p>
-        <form method="POST">
-            <input type="text" name="filename" placeholder="e.g., secrets.json" required>
+        <p class="description">Add files that you want to exclude from the AI assistant's responses.<br>These files will remain private and won't be referenced in any responses.</p>
+        
+        <form method="POST" class="form-group">
+            <input type="text" name="filename" placeholder="Enter file path (e.g., config/secrets.json)" required>
             <button type="submit">Add to Blacklist</button>
         </form>
 
-        <h3>Current Blacklist:</h3>
+        <h3>Protected Files</h3>
         <ul>
             {% for file in blacklist %}
-                <li>📁 {{ file }}</li>
+                <li>
+                    <span>📁 {{ file }}</span>
+                    <button class="delete-btn" onclick="removeFile('{{ file }}')" title="Remove from blacklist">×</button>
+                </li>
+            {% else %}
+                <div class="empty-state">No files are currently blacklisted</div>
             {% endfor %}
         </ul>
     </div>
+
+    <script>
+        function removeFile(filename) {
+            if (confirm('Remove "' + filename + '" from the blacklist?')) {
+                // You'll need to implement the backend endpoint for this
+                fetch('/remove-from-blacklist', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ filename: filename })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        location.reload();
+                    }
+                });
+            }
+        }
+    </script>
 </body>
 </html>
