@@ -19,7 +19,7 @@
                     </li>
                 {% endfor %}
             </ul>
-            <div class="settings" onclick="window.location.href='/settings'">⚙️ Settings</div>
+            <div class="settings" onclick="openSettingsPopup()">⚙️ Settings</div>
         </aside>
 
         <main class="chat-area">
@@ -81,5 +81,139 @@
     });
     </script>
 
+    <!-- SETTINGS MODAL (Oculto por defecto) -->
+    <div id="settingsModal" class="modal">
+    <div class="settings-container">
+        <button class="close-button" onclick="closeSettingsPopup()">X</button>
+
+        <!-- SETTINGS LIST -->
+        <div class="settings-list">
+        <div class="setting-item" onclick="openModal()">
+            <div class="setting-icon">🔑</div>
+            <span>API Key</span>
+        </div>
+        <div class="setting-item" onclick="toggleBlacklist()">
+            <div class="setting-icon">🔒</div>
+            <span>Blacklist Files</span>
+        </div>
+        <div class="setting-item" onclick="alert('Prompt text modal here!')">
+            <div class="setting-icon">📝</div>
+            <span>Prompt Text</span>
+        </div>
+        <a href="https://github.com/Marlu0/softies_project/blob/main/HELP.md" target="_blank" class="setting-item" style="text-decoration: none; color: inherit;">
+            <div class="setting-icon">❓</div>
+            <span>Help Button</span>
+        </a>
+
+        <div id="blacklist-section" class="blacklist-section">
+            <h2>Blacklist Files</h2>
+            <p style="text-align: center;"><em>Hide private or sensitive files from assistant responses.<br>These files will not be referenced or displayed.</em></p>
+            <form action="/blacklist" method="post" enctype="multipart/form-data" style="text-align: center; margin: 20px 0;">
+            <input type="file" name="blacklist_files" multiple />
+            <button type="submit">Add to Blacklist</button>
+            </form>
+            <div>
+            <h4>Currently Blacklisted:</h4>
+            <ul>
+                {% for file in blacklisted %}
+                <li>{{ file }}</li>
+                {% else %}
+                <li>No files blacklisted yet.</li>
+                {% endfor %}
+            </ul>
+            </div>
+        </div>
+        </div>
+
+        <div class="robot-img">
+        <img src="{{ url_for('static', filename='images/settings_robot.png') }}" alt="Robot Icon" style="width: 100%;" />
+        </div>
+    </div>
+    </div>
+
+    <!-- CSS para el modal -->
+    <style>
+    .modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    }
+    .modal.show {
+    display: flex;
+    }
+    .settings-container {
+    background-color: #7da87b;
+    padding: 40px;
+    border-radius: 30px;
+    width: 700px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    position: relative;
+    }
+    .settings-list {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+    }
+    .setting-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    font-size: 18px;
+    font-weight: 500;
+    cursor: pointer;
+    }
+    .setting-item:hover {
+    text-decoration: underline;
+    }
+    .setting-icon {
+    background-color: #f5f9f5;
+    border-radius: 10px;
+    padding: 10px;
+    font-size: 20px;
+    }
+    .robot-img {
+    width: 250px;
+    height: auto;
+    border-radius: 30px;
+    background-color: #f0ede8;
+    padding: 30px;
+    }
+    .blacklist-section {
+    display: none;
+    margin-top: 25px;
+    width: 100%;
+    }
+    .close-button {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-weight: bold;
+    background: #fff;
+    padding: 5px 10px;
+    border: none;
+    cursor: pointer;
+    border-radius: 5px;
+    }
+    </style>
+
+    <!-- JS para mostrar y ocultar el popup -->
+    <script>
+    function openSettingsPopup() {
+    document.getElementById("settingsModal").classList.add("show");
+    }
+    function closeSettingsPopup() {
+    document.getElementById("settingsModal").classList.remove("show");
+    }
+    function toggleBlacklist() {
+    const section = document.getElementById("blacklist-section");
+    section.style.display = section.style.display === "block" ? "none" : "block";
+    }
+    </script>
 </body>
 </html>

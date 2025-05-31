@@ -10,7 +10,7 @@ from werkzeug.utils import secure_filename
 from src.routes_api_keys import bp_api_keys
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
-from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys
+from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys, create_project_message
 
 
 app = Flask(__name__)
@@ -63,6 +63,24 @@ def chat_project(project_name):
     messages = get_project_messages(project_id)
     return render_template("chat.html", project_name=project_name, projects=projects, messages=messages)
 
+@app.route("/chat/<project_name>/send", methods=["POST"])
+def send_message(project_name):
+    data = request.get_json()
+    user_message = data.get("text")
+
+    if not user_message:
+        return jsonify({"error": "No message text provided"}), 400
+
+    project_id = get_project_id_by_name(project_name)
+    if not project_id:
+        return jsonify({"error": "Invalid project name"}), 404
+
+    create_project_message(project_id, user_message, sender="user")
+
+    bot_response = f"🤖 Softy: Has dicho \"{user_message}\""
+    create_project_message(project_id, bot_response, sender="bot")
+
+    return jsonify({"response": bot_response})
 
 # NO LONGER A FLASK ROUTE ACCESSED DIRECTLY FROM JS FETCH
 # @app.route('/select_project_folder', methods=['GET'])
