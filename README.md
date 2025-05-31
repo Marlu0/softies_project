@@ -88,5 +88,6 @@ Contributions are welcome! To collaborate:
 - **Berta Noguera** — u199893
 - **Adrià Porta** — u215229
 - **Francesc Baiget** — u232665
+- **Paola Martín** — u233547
 ```
 
