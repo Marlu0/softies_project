@@ -382,7 +382,8 @@
           <input id="keyInput" type="text" placeholder="Enter your OpenAI API key" />
         </label>
 
-        <button class="save" onclick="saveApiKey()">Save Configuration</button>
+        <button class="save" onclick="saveApiKey()" style="border-radius: 20px; padding: 10px 20px; margin-top: 25px; background-color: #7da87b; color: white; border: none;">Save Configuration</button>
+        <button class="delete-all" onclick="deleteAllApiKeys()" style="margin-top: 25px; background-color: #ff6b6b; color: white; border-radius: 20px; padding: 10px 20px; border: none; font-weight: bold;">🔥 Delete All</button>
         <p id="statusMsg" style="margin-top: 15px; text-align: center;"></p>
       </div>
     </div>
@@ -479,10 +480,20 @@
       }
 
       /* --------------------  DELETE API-KEY  -------------------- */
-      async function deleteKey(name) {
-        if (!confirm(`Eliminar la clave «${name}»?`)) return;
-        await fetch(`/api/api_keys/${name}`, { method: "DELETE" });
-        location.reload();
+      async function deleteAllApiKeys() {
+        if (!confirm("Delete ALL API keys?")) return;
+        try {
+          const response = await fetch('/api/api_keys/delete_all', { method: 'DELETE' });
+          if (response.ok) {
+            alert('All API keys deleted successfully!');
+            location.reload();
+          } else {
+            alert('Failed to delete API keys');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          alert('An error occurred while deleting API keys');
+        }
       }
 
       /* --------------------  BLACKLIST MODAL HANDLERS  -------------------- */
