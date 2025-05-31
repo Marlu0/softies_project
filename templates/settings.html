@@ -459,8 +459,12 @@
           });
 
           if (!rsp.ok) {
-            const errText = await rsp.text();
-            throw new Error(errText || "Failed to save API key");
+            if (rsp.status === 400) {
+              throw new Error("Please enter a valid API key");
+            } else {
+              const errText = await rsp.text();
+              throw new Error(errText || "Failed to save API key");
+            }
           }
 
           msgEl.style.color = "green";
