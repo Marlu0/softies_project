@@ -1,97 +1,116 @@
-Softies Project
-Softies es un asistente de voz inteligente que permite a los usuarios interactuar con sus proyectos mediante comandos de voz. Desarrollado como parte del proyecto de Ingeniería del Software, Softies integra reconocimiento de voz, procesamiento del lenguaje natural y una interfaz web intuitiva para facilitar la gestión de proyectos.
+# 🧠 Softies Project
 
-Características
-🎙️ Reconocimiento de voz: Utiliza modelos de Vosk para transcribir comandos de voz en tiempo real.
+**Softies** és un assistent de veu intel·ligent que permet als usuaris interactuar amb els seus projectes mitjançant comandes de veu. Desenvolupat com a part del projecte d'Enginyeria del Software, Softies integra reconeixement de veu, processament del llenguatge natural i una interfície web intuïtiva per facilitar la gestió de projectes.
 
-🧠 Procesamiento del lenguaje natural: Interpreta y responde a comandos utilizando modelos de lenguaje avanzados.
+---
 
-🗂️ Gestión de proyectos: Crea, elimina y navega entre proyectos fácilmente.
+## ✨ Característiques
 
-🌐 Interfaz web interactiva: Diseñada con HTML, CSS y JavaScript para una experiencia de usuario fluida.
+- 🎙️ **Reconeixement de veu**: Utilitza models de **Vosk** per transcriure comandes de veu en temps real.  
+- 🧠 **Processament del llenguatge natural**: Interpreta i respon comandes mitjançant models avançats de llenguatge.  
+- 🗂️ **Gestió de projectes**: Crea, elimina i navega entre projectes fàcilment.  
+- 🌐 **Interfície web interactiva**: Desenvolupada amb HTML, CSS i JavaScript per a una experiència fluïda.  
+- ⚙️ **Configuracions personalitzables**: Ajusta preferències i gestiona claus API des de la secció de configuració.
 
-⚙️ Configuraciones personalizables: Ajusta preferencias y gestiona claves API desde la sección de configuración.
+---
 
-Requisitos
-Python 3.8 o superior
+## 🧰 Requisits
 
-pip (gestor de paquetes de Python)
+- Python **3.8** o superior  
+- `pip` (gestor de paquets de Python)  
 
-Instalación
-Clona el repositorio:
+---
 
-bash
-Copiar
-Editar
+## 🚀 Instal·lació
+
+### 1. Clona el repositori
+
+```bash
 git clone https://github.com/Marlu0/softies_project.git
 cd softies_project
-Crea y activa un entorno virtual (opcional pero recomendado):
+2. Crea i activa un entorn virtual (opcional però recomanat)
+Linux/macOS:
 
 bash
 Copiar
 Editar
 python -m venv env
-source env/bin/activate  # En Windows: env\Scripts\activate
-Instala las dependencias:
+source env/bin/activate
+Windows:
 
+bash
+Copiar
+Editar
+python -m venv env
+env\Scripts\activate
+3. Instal·la les dependències
 bash
 Copiar
 Editar
 pip install -r requirements.txt
-Ejecuta la aplicación:
-
+4. Executa l'aplicació
 bash
 Copiar
 Editar
 python app.py
-La aplicación estará disponible en http://localhost:5000.
+L'aplicació estarà disponible a:
+👉 http://localhost:5000
 
-Estructura del Proyecto
-bash
+🗂️ Estructura del Projecte
+plaintext
 Copiar
 Editar
 softies_project/
-├── models/                 # Modelos de Vosk para reconocimiento de voz
-├── src/                    # Código fuente principal
-├── static/                 # Archivos estáticos (CSS, JS, imágenes)
-├── templates/              # Plantillas HTML para la interfaz web
-├── test/                   # Pruebas unitarias y de integración
-├── app.py                  # Archivo principal para iniciar la aplicación
-├── requirements.txt        # Lista de dependencias del proyecto
-├── pipeline.drawio         # Diagrama del flujo de la aplicación
-├── README.md               # Este archivo
-└── HELP.md                 # Documentación adicional y preguntas frecuentes
-Uso
-Inicio: Al ejecutar la aplicación, accede a http://localhost:5000 en tu navegador.
+├── models/                 # Models Vosk per al reconeixement de veu
+├── src/                    # Codi font principal
+├── static/                 # Fitxers estàtics (CSS, JS, imatges)
+├── templates/              # Plantilles HTML per la interfície web
+├── test/                   # Tests unitaris i d'integració
+├── app.py                  # Arxiu principal per iniciar l'app
+├── requirements.txt        # Dependències del projecte
+├── pipeline.drawio         # Diagrama de flux de l'aplicació
+├── README.md               # Aquest arxiu
+└── HELP.md                 # FAQ i documentació addicional
+🧑‍💻 Ús
+Inici: Un cop executada l'app, obre http://localhost:5000 al navegador.
 
-Crear Proyecto: Haz clic en "Create new project" y selecciona la carpeta deseada.
+Crear projecte: Fes clic a "Create new project" i selecciona la carpeta desitjada.
 
-Interacción por Voz: Utiliza el micrófono para dar comandos y gestionar tus proyectos.
+Interacció per veu: Usa el micròfon per gestionar projectes mitjançant comandes.
 
-Configuración: Accede a la sección de configuración para ajustar preferencias y gestionar claves API.
+Configuració: Accedeix a la secció de configuració per ajustar opcions o gestionar les teves API Keys.
 
-Contribuciones
-¡Las contribuciones son bienvenidas! Si deseas mejorar Softies:
+⚠️ Nota important:
+Aquest projecte està pensat per funcionar localment, així que cal clonar-lo i executar-lo amb Python per garantir el funcionament correcte.
 
-Haz un fork del repositorio.
+🤝 Contribucions
+Les contribucions són benvingudes!
+Per col·laborar:
 
-Crea una nueva rama para tu funcionalidad (git checkout -b nueva-funcionalidad).
+bash
+Copiar
+Editar
+# Fes un fork del repositori
+# Crea una nova branca
+git checkout -b nova-funcionalitat
 
-Realiza tus cambios y haz commits descriptivos.
+# Realitza els canvis i fes commits clars
+git add .
+git commit -m "Nova funcionalitat afegida"
 
-Envía un pull request detallando tus modificaciones.
+# Puja la branca i envia un pull request
+git push origin nova-funcionalitat
+👨‍🔧 Equip de Desenvolupament
+Marcel Manzano — u231726
 
-Equipo de Desarrollo
-Marcel Manzano - u231726
+Franco Olano — u233420
 
-Franco Olano - u233420
+Nerea González — u199125
 
-Nerea González - u199125
+Adrià López — u233501
 
-Adrià López - u233501
+Berta Noguera — u199893
 
-Berta Noguera - u199893
+Adrià Porta — u215229
 
-Adrià Porta - u215229
-
-Francesc Baiget - u232665
+Francesc Baiget — u232665
