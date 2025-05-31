@@ -1,6 +1,4 @@
-¡Por supuesto, Nerea! Aquí tienes tu README con un formato claro y atractivo, optimizado para una mejor lectura:
 
-```markdown
 # 🧠 Softies Project
 
 Softies es un asistente de voz inteligente que permite a los usuarios interactuar con sus proyectos mediante comandos de voz. Desarrollado como parte del proyecto de Ingeniería de Software, Softies integra reconocimiento de voz, procesamiento de lenguaje natural y una interfaz web intuitiva para simplificar la gestión de proyectos.
