@@ -1,5 +1,5 @@
 # app.py
-from flask import Flask, render_template, request, redirect, url_for, flash, jsonify
+from flask import Flask, render_template, request, redirect, url_for, flash, jsonify, Response
 import os
 import datetime
 import tkinter as tk
@@ -8,6 +8,7 @@ import threading # Import threading for running Flask in a separate thread
 import webview # Import pywebview
 from werkzeug.utils import secure_filename
 from src.routes_api_keys import bp_api_keys
+from src.speech2text import listen_for_input, listen_for_input_stream
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
 from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys
@@ -161,6 +162,38 @@ def blacklist():
 
     blacklist_items = load_blacklist()
     return render_template('blacklist.html', blacklist=blacklist_items)
+
+@app.route('/api/speech2text', methods=['POST'])
+def api_speech2text():
+    try:
+        text = listen_for_input()
+        return jsonify({'text': text})
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+@app.route('/api/speech2text_stream', methods=['GET'])
+def api_speech2text_stream():
+    def event_stream():
+        for partial in listen_for_input_stream():
+            yield f"data: {partial}\n\n"
+    return Response(event_stream(), mimetype="text/event-stream")
+
+@app.route('/chat/<project_name>/send', methods=['POST'])
+def chat_send(project_name):
+    data = request.get_json()
+    text = data.get('text', '').strip()
+    if not text:
+        return jsonify({'error': 'Empty message'}), 400
+    project_id = get_project_id_by_name(project_name)
+    if not project_id:
+        return jsonify({'error': 'Project not found'}), 404
+    # Store user message
+    from src.database import create_project_message
+    create_project_message(project_id, text, sender='user')
+    # Dummy bot response (replace with real AI call if needed)
+    bot_response = f"Echo: {text}"
+    create_project_message(project_id, bot_response, sender='bot')
+    return jsonify({'response': bot_response})
 
 # --- Pywebview Integration ---
 
