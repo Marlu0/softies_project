@@ -12,6 +12,7 @@ from src.speech2text import listen_for_input, listen_for_input_stream
 from src.text2speech import speak_text
 from src.chatbot_handler import chat_with_context
 from src.api_handler import get_api_key, is_valid_api_key
+from src.database import get_db_connection, get_project_path
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
 from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys, create_project_message
@@ -80,8 +81,8 @@ def send_message(project_name):
         return jsonify({"error": "Invalid project name"}), 404
 
     create_project_message(project_id, user_message, sender="user")
-
-    full_response = chat_with_context(folder_path=os.path.join(BASE_DIR, secure_filename(project_name)),
+    project_path = get_project_path(project_id)
+    full_response = chat_with_context(folder_path=project_path,
                                       user_prompt=user_message,
                                       is_first_prompt=False,
                                       model_name="gemini-2.0-flash",
@@ -310,4 +311,3 @@ if __name__ == '__main__':
     # If pywebview closes, Flask thread might still be active.
     # This is a simple shutdown for development. For production, more robust handling.
     print("Application closed.")
-
