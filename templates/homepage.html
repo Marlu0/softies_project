@@ -166,6 +166,140 @@
         display: none;
       }
     }
+
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal {
+      background: white;
+      padding: 30px;
+      border-radius: 15px;
+      width: 90%;
+      max-width: 400px;
+      position: relative;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    }
+
+    .modal h2 {
+      margin-top: 0;
+      color: #1c3e2e;
+      font-size: 24px;
+      margin-bottom: 20px;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .modal-close:hover {
+      color: #333;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      color: #1c3e2e;
+      font-weight: 500;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 10px;
+      border: 2px solid #ddd;
+      border-radius: 8px;
+      font-size: 16px;
+      transition: border-color 0.2s;
+    }
+
+    .form-group input:focus {
+      border-color: #7da87b;
+      outline: none;
+    }
+
+    .modal-button {
+      background: #7da87b;
+      color: white;
+      border: none;
+      padding: 12px 24px;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.2s;
+    }
+
+    .modal-button:hover {
+      background: #6a976a;
+    }
+
+    .notification {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      padding: 15px 25px;
+      border-radius: 8px;
+      color: white;
+      font-weight: 500;
+      z-index: 1000;
+      display: none;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    .notification.success {
+      background: #4caf50;
+    }
+
+    .notification.error {
+      background: #f44336;
+    }
+
+    .loading {
+      position: relative;
+      opacity: 0.7;
+      pointer-events: none;
+    }
+
+    .loading::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      border: 2px solid #fff;
+      border-top-color: transparent;
+      border-radius: 50%;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: translateY(-50%) rotate(360deg); }
+    }
   </style>
 </head>
 <body>
@@ -214,6 +348,26 @@
     </div>
   </div>
 
+  <!-- API Key Modal -->
+  <div id="apiKeyModal" class="modal-overlay">
+    <div class="modal">
+      <button class="modal-close" onclick="closeApiKeyModal()">×</button>
+      <h2>Configure API Key</h2>
+      <div class="form-group">
+        <label>Name Your Key</label>
+        <input type="text" id="keyName" placeholder="e.g., Personal, Work, etc." />
+      </div>
+      <div class="form-group">
+        <label>OpenAI API Key</label>
+        <input type="text" id="apiKey" placeholder="Enter your OpenAI API key" />
+      </div>
+      <button id="saveKeyButton" class="modal-button" onclick="saveApiKey()">Save API Key</button>
+    </div>
+  </div>
+
+  <!-- Notification -->
+  <div id="notification" class="notification"></div>
+
   <script>
     let currentIndex = 0;
 
@@ -231,18 +385,108 @@
       container.style.transform = `translateX(${offset}%)`;
     }
 
+    // Check for API key on page load
+    window.addEventListener('DOMContentLoaded', async function() {
+      try {
+        const response = await fetch('/api/check_api_key');
+        const data = await response.json();
+        if (!data.has_key) {
+          showApiKeyModal();
+        }
+      } catch (error) {
+        console.error('Error checking API key:', error);
+      }
+    });
+
+    function showNotification(message, type = 'success') {
+      const notification = document.getElementById('notification');
+      notification.textContent = message;
+      notification.className = `notification ${type}`;
+      notification.style.display = 'block';
+      
+      setTimeout(() => {
+        notification.style.display = 'none';
+      }, 3000);
+    }
+
+    function showApiKeyModal() {
+      document.getElementById('apiKeyModal').style.display = 'flex';
+    }
+
+    function closeApiKeyModal() {
+      document.getElementById('apiKeyModal').style.display = 'none';
+    }
+
+    async function saveApiKey() {
+      const button = document.getElementById('saveKeyButton');
+      const keyName = document.getElementById('keyName').value.trim() || 'default';
+      const apiKey = document.getElementById('apiKey').value.trim();
+
+      if (!apiKey) {
+        showNotification('Please enter a valid API key', 'error');
+        return;
+      }
+
+      button.classList.add('loading');
+      
+      try {
+        const response = await fetch('/api/api_keys/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: keyName, key: apiKey })
+        });
+
+        if (!response.ok) {
+          throw new Error('Failed to save API key');
+        }
+
+        showNotification('API key saved successfully!');
+        closeApiKeyModal();
+      } catch (error) {
+        showNotification(error.message, 'error');
+      } finally {
+        button.classList.remove('loading');
+      }
+    }
+
     const createCard = document.getElementById('createNewProjectCard');
-    createCard.addEventListener('click', async function () {
-      const folderPath = await pywebview.api.select_project_folder_dialog();
-      if (folderPath) {
+    createCard.addEventListener('click', async function() {
+      try {
+        // Check for API key first
+        const keyResponse = await fetch('/api/check_api_key');
+        const keyData = await keyResponse.json();
+        
+        if (!keyData.has_key) {
+          showNotification('Please configure your API key first', 'error');
+          showApiKeyModal();
+          return;
+        }
+
+        const folderPath = await pywebview.api.select_project_folder_dialog();
+        if (!folderPath) {
+          return;
+        }
+
+        createCard.classList.add('loading');
+        
         const response = await fetch('/add_selected_project', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ path: folderPath }),
+          body: JSON.stringify({ path: folderPath })
         });
+
         const data = await response.json();
-        if (data.success) window.location.href = data.redirect_url;
-        else alert(data.message || "Error");
+        
+        if (data.success) {
+          showNotification('Project created successfully!');
+          window.location.href = data.redirect_url;
+        } else {
+          throw new Error(data.message || 'Failed to create project');
+        }
+      } catch (error) {
+        showNotification(error.message, 'error');
+      } finally {
+        createCard.classList.remove('loading');
       }
     });
 

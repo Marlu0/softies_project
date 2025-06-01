@@ -382,8 +382,7 @@
           <input id="keyInput" type="text" placeholder="Enter your OpenAI API key" />
         </label>
 
-        <button class="save" onclick="saveApiKey()" style="border-radius: 20px; padding: 10px 20px; margin-top: 25px; background-color: #7da87b; color: white; border: none;">Save Configuration</button>
-        <button class="delete-all" onclick="deleteAllApiKeys()" style="margin-top: 25px; background-color: #ff6b6b; color: white; border-radius: 20px; padding: 10px 20px; border: none; font-weight: bold;">🔥 Delete All</button>
+        <button class="save" onclick="saveApiKey()">Save Configuration</button>
         <p id="statusMsg" style="margin-top: 15px; text-align: center;"></p>
       </div>
     </div>
@@ -459,13 +458,10 @@
             body: JSON.stringify({ name: alias, key }),
           });
 
+          const data = await rsp.json();
+
           if (!rsp.ok) {
-            if (rsp.status === 400) {
-              throw new Error("Please enter a valid API key");
-            } else {
-              const errText = await rsp.text();
-              throw new Error(errText || "Failed to save API key");
-            }
+            throw new Error(data.error || "Failed to save API key");
           }
 
           msgEl.style.color = "green";
@@ -475,25 +471,23 @@
             location.reload();
           }, 1000);
         } catch (err) {
-          msgEl.textContent = err.message || "An error occurred while saving the API key";
+          msgEl.textContent = err.message;
+          // Add helper text about API key format
+          if (err.message.includes("format")) {
+            const helperText = document.createElement("p");
+            helperText.style.fontSize = "12px";
+            helperText.style.marginTop = "5px";
+            helperText.innerHTML = "OpenAI API keys typically look like:<br>sk-xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
+            msgEl.appendChild(helperText);
+          }
         }
       }
 
       /* --------------------  DELETE API-KEY  -------------------- */
-      async function deleteAllApiKeys() {
-        if (!confirm("Delete ALL API keys?")) return;
-        try {
-          const response = await fetch('/api/api_keys/delete_all', { method: 'DELETE' });
-          if (response.ok) {
-            alert('All API keys deleted successfully!');
-            location.reload();
-          } else {
-            alert('Failed to delete API keys');
-          }
-        } catch (error) {
-          console.error('Error:', error);
-          alert('An error occurred while deleting API keys');
-        }
+      async function deleteKey(name) {
+        if (!confirm(`Eliminar la clave «${name}»?`)) return;
+        await fetch(`/api/api_keys/${name}`, { method: "DELETE" });
+        location.reload();
       }
 
       /* --------------------  BLACKLIST MODAL HANDLERS  -------------------- */
