@@ -1,6 +1,7 @@
 import pyttsx3
+import emoji
 
-def speak_text(text: str, voice_index: int = 2, rate: int = 150, volume: float = 1.0):
+def speak_text(text: str, voice_index: int = 2, rate: int = 200, volume: float = 1.0):
     """
     Speak the given text aloud using the specified voice, rate, and volume.
 
@@ -9,6 +10,7 @@ def speak_text(text: str, voice_index: int = 2, rate: int = 150, volume: float =
     :param rate: Speed of speech (default is 150).
     :param volume: Volume level from 0.0 to 1.0 (default is 1.0).
     """
+    text = emoji.demojize(text)
     engine = pyttsx3.init()
     voices = engine.getProperty('voices')
 

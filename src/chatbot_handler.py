@@ -38,7 +38,8 @@ def create_context(folder_path, is_first_prompt=False):
         for file_path, content in file_contents.items():
             prompt += f"--- {file_path} ---\n{content}\n\n"
 
-    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content>\n--TEXT--\n<content that should be written in the chat with the AI>\n--WRITE--\n<code changes or suggestions>\n"
+    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content, can't contain markdown formatted text or anything other than plain text>\n--TEXT--\n<content that should be written in the chat with the AI, this section can't contain markdown format>\n--WRITE--\n<code changes or suggestions>\n"
+    prompt += "The AI will not write code directly in the chat, but will provide a description of the changes or improvements needed.\n"
     prompt += "The following user prompt will contain the specific instructions for the code analysis:"
     return prompt
 
