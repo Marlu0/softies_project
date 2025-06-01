@@ -8,7 +8,6 @@ import threading # Import threading for running Flask in a separate thread
 import webview # Import pywebview
 from werkzeug.utils import secure_filename
 from src.routes_api_keys import bp_api_keys
-from src.speech2text import listen_for_input, listen_for_input_stream
 from src.text2speech import speak_text
 from src.chatbot_handler import chat_with_context
 from src.api_handler import get_api_key, is_valid_api_key
@@ -91,7 +90,7 @@ def send_message(project_name):
     chat_text = full_response["chat"]
     write_text = full_response["write"]
 
-    bot_response = f"🤖 Softy:\n {chat_text}"
+    bot_response = f"{chat_text}"
     create_project_message(project_id, bot_response, sender="bot")
     if speak_text:
         threading.Thread(target=speak_text, args=(voice_text,)).start()    
@@ -209,21 +208,6 @@ def blacklist():
 
     blacklist_items = load_blacklist()
     return render_template('blacklist.html', blacklist=blacklist_items)
-
-@app.route('/api/speech2text', methods=['POST'])
-def api_speech2text():
-    try:
-        text = listen_for_input()
-        return jsonify({'text': text})
-    except Exception as e:
-        return jsonify({'error': str(e)}), 500
-
-@app.route('/api/speech2text_stream', methods=['GET'])
-def api_speech2text_stream():
-    def event_stream():
-        for partial in listen_for_input_stream():
-            yield f"data: {partial}\n\n"
-    return Response(event_stream(), mimetype="text/event-stream")
 
 @app.route('/chat/<project_name>/send', methods=['POST'])
 def chat_send(project_name):

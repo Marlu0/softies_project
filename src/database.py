@@ -171,6 +171,14 @@ def get_api_keys():
     conn.close()
     return keys
 
+def get_project_context_summary(project_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT context_summary FROM projects WHERE id = ?", (project_id,))
+    row = cursor.fetchone()
+    conn.close()
+    return row['context_summary'] if row else None
+
 # Delete operations
 
 def delete_project_messages(project_id):
