@@ -9,6 +9,9 @@ import webview # Import pywebview
 from werkzeug.utils import secure_filename
 from src.routes_api_keys import bp_api_keys
 from src.speech2text import listen_for_input, listen_for_input_stream
+from src.text2speech import speak_text
+from src.chatbot_handler import chat_with_context
+from src.api_handler import get_api_key, is_valid_api_key
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
 from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys, create_project_message
@@ -78,7 +81,18 @@ def send_message(project_name):
 
     create_project_message(project_id, user_message, sender="user")
 
-    bot_response = f"🤖 Softy: Has dicho \"{user_message}\""
+    full_response = chat_with_context(folder_path=os.path.join(BASE_DIR, secure_filename(project_name)),
+                                      user_prompt=user_message,
+                                      is_first_prompt=False,
+                                      model_name="gemini-2.0-flash",
+                                      api_key=get_api_key())  # Replace with hardcoded API key if needed
+    voice_text = full_response["speak_text"]
+    chat_text = full_response["chat"]
+    write_text = full_response["write"]
+
+    bot_response = f"\"{chat_text}\""
+    if speak_text:
+        speak_text(voice_text)
     create_project_message(project_id, bot_response, sender="bot")
 
     return jsonify({"response": bot_response})
