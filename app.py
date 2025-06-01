@@ -114,13 +114,27 @@ def add_selected_project():
         return jsonify({'success': False, 'message': 'No folder path provided.'}), 400
 
     project_name = os.path.basename(project_path)
+    
+    # Validate project name
+    if not project_name:
+        return jsonify({'success': False, 'message': 'Invalid project name.'}), 400
+    
+    # Check if project path exists
+    if not os.path.exists(project_path):
+        return jsonify({'success': False, 'message': 'Selected folder does not exist.'}), 400
 
-    if create_project(project_name, project_path):
-        flash(f'Project "{project_name}" added successfully!', 'success')
-        return jsonify({'success': True, 'redirect_url': url_for('home')})
-    else:
-        flash(f'A project with name "{project_name}" or path "{project_path}" already exists.', 'warning')
-        return jsonify({'success': False, 'message': 'Project already exists.'}), 409
+    # Check if it's a valid directory
+    if not os.path.isdir(project_path):
+        return jsonify({'success': False, 'message': 'Selected path is not a directory.'}), 400
+
+    try:
+        if create_project(project_name, project_path):
+            flash(f'Project "{project_name}" added successfully!', 'success')
+            return jsonify({'success': True, 'redirect_url': url_for('chat_project', project_name=project_name)})
+        else:
+            return jsonify({'success': False, 'message': 'A project with this name or path already exists.'}), 409
+    except Exception as e:
+        return jsonify({'success': False, 'message': f'Error creating project: {str(e)}'}), 500
 
 
 @app.route('/delete_project/<int:project_id>', methods=['POST'])
@@ -226,6 +240,37 @@ def chat_send(project_name):
     bot_response = f"Echo: {text}"
     create_project_message(project_id, bot_response, sender='bot')
     return jsonify({'response': bot_response})
+
+@app.route('/api/check_api_key')
+def check_api_key():
+    api_keys = get_api_keys()
+    return jsonify({'has_key': len(api_keys) > 0})
+
+@app.route('/api/api_keys/', methods=['POST'])
+def add_api_key():
+    data = request.get_json()
+    name = data.get('name', '').strip()
+    key = data.get('key', '').strip()
+
+    if not key:
+        return jsonify({'error': 'API key is required'}), 400
+        
+    if not key.startswith('sk-'):
+        return jsonify({'error': 'Invalid API key format. OpenAI API keys should start with "sk-"'}), 400
+
+    if len(key) < 20:
+        return jsonify({'error': 'Invalid API key length. Please provide a valid OpenAI API key'}), 400
+
+    try:
+        # Here you would typically validate the key with OpenAI's API
+        # For now, we'll just save it
+        conn = get_db_connection()
+        conn.execute('INSERT OR REPLACE INTO api_keys (name, key) VALUES (?, ?)', (name, key))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True}), 200
+    except Exception as e:
+        return jsonify({'error': 'Failed to save API key: ' + str(e)}), 500
 
 # --- Pywebview Integration ---
 
