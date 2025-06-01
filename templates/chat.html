@@ -33,11 +33,11 @@
                     {% if msg['sender'] == 'bot' %}
                         <div class="message bot">
                             <img src="{{ url_for('static', filename='images/robot-icon.jpg') }}" alt="Bot" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; vertical-align: middle; display: inline-block;">
-                            <span>{{ msg['text'] }}</span>
+                            <div style="display: inline-block;">{{ msg['text']|safe }}</div>
                         </div>
                     {% else %}
                         <div class="message user">
-                            <span>{{ msg['text'] }}</span>
+                            <div style="display: inline-block;">{{ msg['text']|safe }}</div>
                         </div>
                     {% endif %}
                 {% endfor %}
@@ -152,7 +152,7 @@
                 .then(data => {
                     const botMessage = document.createElement("div");
                     botMessage.className = "message bot";
-                    botMessage.textContent = data.response;
+                    botMessage.innerHTML = data.response;
                     messagesContainer.appendChild(botMessage);
                     messagesContainer.scrollTop = messagesContainer.scrollHeight;
                 })

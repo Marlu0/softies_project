@@ -11,6 +11,7 @@ from src.routes_api_keys import bp_api_keys
 from src.text2speech import speak_text
 from src.chatbot_handler import chat_with_context
 from src.api_handler import get_api_key, is_valid_api_key
+import markdown2
 from src.database import get_db_connection, get_project_path
 
 # Corrected import for database.py, assuming it's in the 'src' subdirectory
@@ -90,12 +91,14 @@ def send_message(project_name):
     chat_text = full_response["chat"]
     write_text = full_response["write"]
 
-    bot_response = f"{chat_text}"
-    create_project_message(project_id, bot_response, sender="bot")
-    if speak_text:
-        threading.Thread(target=speak_text, args=(voice_text,)).start()    
+    # Convert chat_text to HTML using markdown2
+    chat_text_html = markdown2.markdown(chat_text)
 
-    return jsonify({"response": bot_response})
+    create_project_message(project_id, chat_text_html, sender="bot")
+    if speak_text:
+        threading.Thread(target=speak_text, args=(voice_text,)).start()
+
+    return jsonify({"response": chat_text_html})
 
 # NO LONGER A FLASK ROUTE ACCESSED DIRECTLY FROM JS FETCH
 # @app.route('/select_project_folder', methods=['GET'])
