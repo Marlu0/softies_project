@@ -90,10 +90,10 @@ def send_message(project_name):
     chat_text = full_response["chat"]
     write_text = full_response["write"]
 
-    bot_response = f"\"{chat_text}\""
-    if speak_text:
-        speak_text(voice_text)
+    bot_response = f"🤖 Softy:\n {chat_text}"
     create_project_message(project_id, bot_response, sender="bot")
+    if speak_text:
+        threading.Thread(target=speak_text, args=(voice_text,)).start()    
 
     return jsonify({"response": bot_response})
 
