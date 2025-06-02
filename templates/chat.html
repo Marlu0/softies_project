@@ -4,6 +4,414 @@
     <meta charset="UTF-8">
     <title>Chat - Softy</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='chat.css') }}">
+    <style>
+        /* Settings Modal Styles */
+        #settingsModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #settingsModal.show {
+            display: flex;
+        }
+
+        .settings-container {
+            background-color: #7da87b;
+            padding: 45px;
+            border-radius: 30px;
+            width: 700px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            position: relative;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+        }
+
+        .settings-list {
+            display: flex;
+            flex-direction: column;
+            gap: 25px;
+        }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            font-size: 18px;
+            font-weight: 500;
+            cursor: pointer;
+            padding: 8px 12px;
+            border-radius: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .setting-item:hover {
+            background-color: rgba(255, 255, 255, 0.2);
+            transform: translateX(5px);
+        }
+
+        .setting-icon {
+            background-color: #f5f9f5;
+            border-radius: 12px;
+            padding: 12px;
+            font-size: 22px;
+            transition: transform 0.2s ease;
+        }
+
+        .setting-item:hover .setting-icon {
+            transform: scale(1.1);
+        }
+
+        .robot-img {
+            width: 250px;
+            height: auto;
+            border-radius: 30px;
+            background-color: #f0ede8;
+            padding: 30px;
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-weight: bold;
+            background: #fff;
+            padding: 8px 14px;
+            border: none;
+            cursor: pointer;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+
+        .close-button:hover {
+            background: #f0f0f0;
+            transform: scale(1.05);
+        }
+
+        /* API Key Modal Styles */
+        #apiKeyModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #apiKeyModal .modal-content {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px 45px;
+            width: 340px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        #apiKeyModal .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        #apiKeyModal label {
+            display: block;
+            margin-top: 15px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        #apiKeyModal input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        #apiKeyModal input[type="text"]:focus {
+            border-color: #7da87b;
+            outline: none;
+        }
+
+        #apiKeyModal button.save {
+            margin-top: 25px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: #7da87b;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        #apiKeyModal button.save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(125, 168, 123, 0.3);
+        }
+
+        /* Blacklist Modal Styles */
+        #blacklistModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #blacklistModal .modal-content {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px 45px;
+            width: 400px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        #blacklistModal .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        #blacklistModal .description {
+            text-align: center;
+            color: #555;
+            line-height: 1.5;
+            margin-bottom: 25px;
+        }
+
+        #blacklistModal .file-list {
+            max-height: 200px;
+            overflow-y: auto;
+            margin: 20px 0;
+            padding-right: 10px;
+        }
+
+        #blacklistModal .file-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: #f5f9f5;
+            border-radius: 6px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #blacklistModal .file-item:hover {
+            background: #e8f0e8;
+        }
+
+        #blacklistModal form {
+            margin-top: 20px;
+        }
+
+        #blacklistModal input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+        }
+
+        #blacklistModal button.submit {
+            width: 100%;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: #7da87b;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: all 0.2s ease;
+        }
+
+        #blacklistModal button.submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(125, 168, 123, 0.3);
+        }
+
+        /* Chat UX Improvements */
+        .message {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: messageAppear 0.3s ease forwards;
+        }
+
+        @keyframes messageAppear {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .chat-input input {
+            transition: all 0.2s ease;
+        }
+
+        .chat-input input:focus {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(125, 168, 123, 0.2);
+        }
+
+        #mic-btn {
+            transition: all 0.2s ease;
+        }
+
+        #mic-btn:hover {
+            transform: scale(1.1);
+        }
+
+        #mic-btn:active {
+            transform: scale(0.95);
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 15px;
+            background: #f0f0f0;
+            border-radius: 15px;
+            margin-bottom: 15px;
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 0.5; }
+            50% { opacity: 1; }
+            100% { opacity: 0.5; }
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            background: #4CAF50;
+            color: white;
+            font-weight: 500;
+            opacity: 0;
+            transform: translateX(100%);
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            opacity: 1;
+            transform: translateX(0);
+        }
+
+        .notification.error {
+            background: #f44336;
+        }
+
+        .sidebar li {
+            padding: 10px;
+            margin-bottom: 10px;
+            background: #fff;
+            border-radius: 8px;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sidebar li .project-info {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex: 1;
+        }
+
+        .sidebar li .rename-icon {
+            opacity: 0;
+            transition: opacity 0.2s ease;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 4px;
+        }
+
+        .sidebar li:hover .rename-icon {
+            opacity: 1;
+        }
+
+        .sidebar li .rename-icon:hover {
+            background: rgba(0, 0, 0, 0.05);
+        }
+
+        /* Rename Modal Styles */
+        #renameModal {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+        }
+
+        #renameModal .modal-content {
+            background: #ffffff;
+            border-radius: 20px;
+            padding: 35px 45px;
+            width: 340px;
+            position: relative;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        #renameModal .modal-content h2 {
+            margin-top: 0;
+            margin-bottom: 20px;
+            font-size: 24px;
+        }
+
+        #renameModal input[type="text"] {
+            width: 100%;
+            padding: 10px 12px;
+            margin-top: 6px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.2s ease;
+        }
+
+        #renameModal input[type="text"]:focus {
+            border-color: #7da87b;
+            outline: none;
+        }
+
+        #renameModal button.save {
+            margin-top: 25px;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 20px;
+            background: #7da87b;
+            color: #fff;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 15px;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+
+        #renameModal button.save:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(125, 168, 123, 0.3);
+        }
+    </style>
 </head>
 <body>
     <div class="container">
@@ -15,7 +423,16 @@
             <ul>
                 {% for project in projects %}
                     <li class="{% if project.name == project_name %}active{% endif %}">
-                        <a href="{{ url_for('chat_project', project_name=project.name) }}">{{ project.name }}</a>
+                        <div class="project-info">
+                            <a href="{{ url_for('chat_project', project_name=project.name) }}">{{ project.name }}</a>
+                            <button 
+                                class="rename-icon" 
+                                onclick="openRenameModal('{{ project.id }}', '{{ project.name }}')"
+                                title="Rename project"
+                            >
+                                ✏️
+                            </button>
+                        </div>
                     </li>
                 {% endfor %}
             </ul>
@@ -41,6 +458,7 @@
                         </div>
                     {% endif %}
                 {% endfor %}
+                <div class="typing-indicator">Softy is typing...</div>
             </section>
 
             <footer class="chat-input">
@@ -57,251 +475,413 @@
         </main>
     </div>
 
+    <!-- Settings Modal -->
+    <div id="settingsModal">
+        <div class="settings-container">
+            <button class="close-button" onclick="closeSettingsPopup()">×</button>
+
+            <div class="settings-list">
+                <!-- API-KEY -->
+                <div class="setting-item" onclick="openModal()">
+                    <div class="setting-icon">🔑</div>
+                    <span>API Key Configuration</span>
+                </div>
+
+                <!-- BLACKLIST -->
+                <div class="setting-item" onclick="openBlacklistModal()">
+                    <div class="setting-icon">🔒</div>
+                    <span>Blacklist Files</span>
+                </div>
+
+                <!-- PROMPT TEXT -->
+                <div class="setting-item" onclick="alert('Coming soon: Customize your AI assistant prompts!')">
+                    <div class="setting-icon">📝</div>
+                    <span>Assistant Preferences</span>
+                </div>
+
+                <!-- HELP -->
+                <a
+                    href="https://github.com/Marlu0/softies_project/blob/c91f801aeb4adc89a50efdb55ada744558b08b8d/HELP.md"
+                    target="_blank"
+                    class="setting-item"
+                    style="text-decoration: none; color: inherit;"
+                >
+                    <div class="setting-icon">❓</div>
+                    <span>Documentation & Support</span>
+                </a>
+            </div>
+
+            <div class="robot-img">
+                <img
+                    src="{{ url_for('static', filename='images/settings-robot.png') }}"
+                    alt="Robot Icon"
+                    style="width: 100%; height: auto; display: block;"
+                />
+            </div>
+        </div>
+    </div>
+
+    <!-- API Key Modal -->
+    <div id="apiKeyModal">
+        <div class="modal-content">
+            <button class="close" onclick="closeModal()">✖️</button>
+            <h2>Configure API Key</h2>
+
+            <label>
+                Name Your Key
+                <input id="aliasInput" type="text" placeholder="e.g., Personal, Work, etc." />
+            </label>
+            <label>
+                API Key
+                <input id="keyInput" type="text" placeholder="Enter your OpenAI API key" />
+            </label>
+
+            <button class="save" onclick="saveApiKey()">Save Configuration</button>
+            <p id="statusMsg" style="margin-top: 15px; text-align: center;"></p>
+        </div>
+    </div>
+
+    <!-- Blacklist Modal -->
+    <div id="blacklistModal">
+        <div class="modal-content">
+            <button class="close" onclick="closeBlacklistModal()">✖️</button>
+            <h2>Blacklist Files</h2>
+            
+            <p class="description">
+                Add files that you want to exclude from the AI assistant's responses.<br>
+                These files will remain private and won't be referenced in any responses.
+            </p>
+
+            <div class="file-list">
+                {% for file in blacklisted %}
+                <div class="file-item">
+                    <span>📄 {{ file }}</span>
+                    <button onclick="removeFromBlacklist('{{ file }}')" style="background: none; border: none; color: #ff6b6b; cursor: pointer;">×</button>
+                </div>
+                {% else %}
+                <div style="text-align: center; color: #666; font-style: italic;">
+                    No files are currently blacklisted
+                </div>
+                {% endfor %}
+            </div>
+
+            <form action="/blacklist" method="post" enctype="multipart/form-data">
+                <input type="file" name="blacklist_files" multiple required />
+                <button type="submit" class="submit">Add Files to Blacklist</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Rename Modal -->
+    <div id="renameModal">
+        <div class="modal-content">
+            <button class="close" onclick="closeRenameModal()">✖️</button>
+            <h2>Rename Project</h2>
+            <input 
+                type="text" 
+                id="newProjectName" 
+                placeholder="Enter new project name"
+            >
+            <button class="save" onclick="saveProjectRename()">Save Changes</button>
+        </div>
+    </div>
+
+    <!-- Notification -->
+    <div id="notification" class="notification"></div>
+
     <script>
-    document.addEventListener("DOMContentLoaded", () => {
-        const input = document.querySelector(".chat-input input");
-        const messagesContainer = document.querySelector(".messages");
-        const projectName = "{{ project_name }}";
-        const micBtn = document.getElementById("mic-btn");
-        let listening = false;
-        let recognition = null;
+        document.addEventListener("DOMContentLoaded", () => {
+            const input = document.querySelector(".chat-input input");
+            const messagesContainer = document.querySelector(".messages");
+            const projectName = "{{ project_name }}";
+            const micBtn = document.getElementById("mic-btn");
+            const typingIndicator = document.querySelector(".typing-indicator");
+            let listening = false;
+            let recognition = null;
 
-        // Use Web Speech API for speech-to-text
-        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
-            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-            recognition = new SpeechRecognition();
-            recognition.lang = 'en-US';
-            recognition.interimResults = true;
-            recognition.continuous = false;
+            // Use Web Speech API for speech-to-text
+            if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+                const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+                recognition = new SpeechRecognition();
+                recognition.lang = 'en-US';
+                recognition.interimResults = true;
+                recognition.continuous = false;
 
-            recognition.onstart = function() {
-                listening = true;
-                micBtn.disabled = true;
-                micBtn.style.opacity = 0.5;
-                input.value = '';
-            };
-            recognition.onresult = function(event) {
-                let interim = '';
-                let final = '';
-                for (let i = 0; i < event.results.length; ++i) {
-                    if (event.results[i].isFinal) {
-                        final += event.results[i][0].transcript;
-                    } else {
-                        interim += event.results[i][0].transcript;
+                recognition.onstart = function() {
+                    listening = true;
+                    micBtn.disabled = true;
+                    micBtn.style.opacity = 0.5;
+                    input.value = '';
+                    showNotification('Listening...', 'info');
+                };
+
+                recognition.onresult = function(event) {
+                    let interim = '';
+                    let final = '';
+                    for (let i = 0; i < event.results.length; ++i) {
+                        if (event.results[i].isFinal) {
+                            final += event.results[i][0].transcript;
+                        } else {
+                            interim += event.results[i][0].transcript;
+                        }
                     }
-                }
-                input.value = final + interim;
-            };
-            recognition.onerror = function(event) {
-                listening = false;
-                micBtn.disabled = false;
-                micBtn.style.opacity = 1;
-                alert('Speech recognition error: ' + event.error);
-            };
-            recognition.onend = function() {
-                micBtn.disabled = false;
-                micBtn.style.opacity = 1;
-                listening = false;
-                if (input.value.trim() !== '') {
-                    input.dispatchEvent(new KeyboardEvent('keypress', {key: 'Enter'}));
-                }
-            };
-        } else {
-            micBtn.disabled = true;
-            micBtn.title = 'Speech recognition not supported in this browser.';
-        }
+                    input.value = final + interim;
+                };
 
-        micBtn.addEventListener("click", function() {
-            if (!recognition) return;
-            if (listening) {
-                // Stop any ongoing recognition before starting a new one
-                try { recognition.abort(); } catch (e) {}
-            }
-            setTimeout(() => {
-                try { recognition.start(); } catch (e) {
-                    alert('Could not activate microphone. Please check browser permissions.');
-                }
-            }, 100);
-        });
+                recognition.onerror = function(event) {
+                    listening = false;
+                    micBtn.disabled = false;
+                    micBtn.style.opacity = 1;
+                    showNotification('Speech recognition error: ' + event.error, 'error');
+                };
 
-        input.addEventListener("keypress", function(e) {
-            if (e.key === "Enter" && input.value.trim() !== "") {
-                // Stop any ongoing speech recognition before sending a new message
-                if (recognition && listening) {
-                    try { recognition.abort(); } catch (e) {}
-                }
-                const text = input.value;
-                input.value = "";
-
-                // Mostrar mensaje del usuario
-                const userMessage = document.createElement("div");
-                userMessage.className = "message user";
-                userMessage.textContent = text;
-                messagesContainer.appendChild(userMessage);
-                messagesContainer.scrollTop = messagesContainer.scrollHeight;
-
-                // Enviar al backend
-                fetch(`/chat/${projectName}/send`, {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/json",
-                    },
-                    body: JSON.stringify({ text })
-                })
-                .then(response => response.json())
-                .then(data => {
-                    const botMessage = document.createElement("div");
-                    botMessage.className = "message bot";
-                    botMessage.innerHTML = data.response;
-                    messagesContainer.appendChild(botMessage);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
-                })
-                .catch(err => {
-                    console.error("Error al enviar mensaje:", err);
-                })
-                .finally(() => {
+                recognition.onend = function() {
                     micBtn.disabled = false;
                     micBtn.style.opacity = 1;
                     listening = false;
+                    if (input.value.trim() !== '') {
+                        input.dispatchEvent(new KeyboardEvent('keypress', {key: 'Enter'}));
+                    }
+                };
+            } else {
+                micBtn.disabled = true;
+                micBtn.title = 'Speech recognition not supported in this browser.';
+                showNotification('Speech recognition not supported in this browser.', 'error');
+            }
+
+            micBtn.addEventListener("click", function() {
+                if (!recognition) return;
+                if (listening) {
+                    try { recognition.abort(); } catch (e) {}
+                }
+                setTimeout(() => {
+                    try { 
+                        recognition.start(); 
+                    } catch (e) {
+                        showNotification('Could not activate microphone. Please check browser permissions.', 'error');
+                    }
+                }, 100);
+            });
+
+            input.addEventListener("keypress", async function(e) {
+                if (e.key === "Enter" && input.value.trim() !== "") {
+                    if (recognition && listening) {
+                        try { recognition.abort(); } catch (e) {}
+                    }
+                    const text = input.value;
+                    input.value = "";
+
+                    // Show user message
+                    const userMessage = document.createElement("div");
+                    userMessage.className = "message user";
+                    userMessage.textContent = text;
+                    messagesContainer.appendChild(userMessage);
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    // Show typing indicator
+                    typingIndicator.style.display = 'block';
+                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+
+                    try {
+                        // Send to backend
+                        const response = await fetch(`/chat/${projectName}/send`, {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                            },
+                            body: JSON.stringify({ text })
+                        });
+
+                        const data = await response.json();
+
+                        // Hide typing indicator
+                        typingIndicator.style.display = 'none';
+
+                        // Show bot message
+                        const botMessage = document.createElement("div");
+                        botMessage.className = "message bot";
+                        botMessage.innerHTML = data.response;
+                        messagesContainer.appendChild(botMessage);
+                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    } catch (err) {
+                        console.error("Error sending message:", err);
+                        showNotification('Error sending message. Please try again.', 'error');
+                        typingIndicator.style.display = 'none';
+                    } finally {
+                        micBtn.disabled = false;
+                        micBtn.style.opacity = 1;
+                        listening = false;
+                    }
+                }
+            });
+        });
+
+        /* Settings Modal Functions */
+        function openSettingsPopup() {
+            document.getElementById("settingsModal").classList.add("show");
+        }
+
+        function closeSettingsPopup() {
+            document.getElementById("settingsModal").classList.remove("show");
+        }
+
+        function openModal() {
+            document.getElementById("apiKeyModal").style.display = "flex";
+        }
+
+        function closeModal() {
+            document.getElementById("apiKeyModal").style.display = "none";
+            document.getElementById("aliasInput").value = "";
+            document.getElementById("keyInput").value = "";
+            document.getElementById("statusMsg").textContent = "";
+        }
+
+        function openBlacklistModal() {
+            document.getElementById("blacklistModal").style.display = "flex";
+        }
+
+        function closeBlacklistModal() {
+            document.getElementById("blacklistModal").style.display = "none";
+        }
+
+        async function saveApiKey() {
+            const alias = document.getElementById("aliasInput").value.trim() || "default";
+            const key = document.getElementById("keyInput").value.trim();
+
+            if (!key) {
+                showNotification("Please enter a valid API key", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/api_keys/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: alias, key }),
                 });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to save API key");
+                }
+
+                showNotification("API key saved successfully!");
+                setTimeout(() => {
+                    closeModal();
+                    location.reload();
+                }, 1000);
+            } catch (err) {
+                showNotification(err.message, "error");
+            }
+        }
+
+        async function removeFromBlacklist(filename) {
+            if (!confirm(`Remove "${filename}" from blacklist?`)) return;
+            
+            try {
+                const response = await fetch('/remove-from-blacklist', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ filename })
+                });
+
+                if (response.ok) {
+                    location.reload();
+                } else {
+                    showNotification('Failed to remove file from blacklist', 'error');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showNotification('An error occurred while removing the file', 'error');
+            }
+        }
+
+        function showNotification(message, type = 'success') {
+            const notification = document.getElementById('notification');
+            notification.textContent = message;
+            notification.className = `notification ${type}`;
+            notification.classList.add('show');
+            
+            setTimeout(() => {
+                notification.classList.remove('show');
+            }, 3000);
+        }
+
+        // Close modals when clicking outside
+        window.onclick = function(event) {
+            if (event.target === document.getElementById("settingsModal")) {
+                closeSettingsPopup();
+            }
+            if (event.target === document.getElementById("apiKeyModal")) {
+                closeModal();
+            }
+            if (event.target === document.getElementById("blacklistModal")) {
+                closeBlacklistModal();
+            }
+        }
+
+        let currentProjectId = null;
+
+        function openRenameModal(projectId, currentName) {
+            event.preventDefault(); // Prevent navigation
+            event.stopPropagation(); // Prevent event bubbling
+            currentProjectId = projectId;
+            document.getElementById('newProjectName').value = currentName;
+            document.getElementById('renameModal').style.display = 'flex';
+        }
+
+        function closeRenameModal() {
+            document.getElementById('renameModal').style.display = 'none';
+            currentProjectId = null;
+        }
+
+        async function saveProjectRename() {
+            const newName = document.getElementById('newProjectName').value.trim();
+            
+            if (!newName) {
+                showNotification('Please enter a project name', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/rename_project', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        project_id: currentProjectId,
+                        new_name: newName
+                    })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to rename project');
+                }
+
+                showNotification('Project renamed successfully!');
+                setTimeout(() => {
+                    location.reload();
+                }, 1000);
+            } catch (err) {
+                showNotification(err.message, 'error');
+            }
+        }
+
+        // Close rename modal when clicking outside
+        document.getElementById('renameModal').addEventListener('click', function(event) {
+            if (event.target === this) {
+                closeRenameModal();
             }
         });
-    });
-    </script>
 
-    <!-- SETTINGS MODAL (Oculto por defecto) -->
-    <div id="settingsModal" class="modal">
-    <div class="settings-container">
-        <button class="close-button" onclick="closeSettingsPopup()">X</button>
-
-        <!-- SETTINGS LIST -->
-        <div class="settings-list">
-        <div class="setting-item" onclick="openModal()">
-            <div class="setting-icon">🔑</div>
-            <span>API Key</span>
-        </div>
-        <div class="setting-item" onclick="toggleBlacklist()">
-            <div class="setting-icon">🔒</div>
-            <span>Blacklist Files</span>
-        </div>
-        <div class="setting-item" onclick="alert('Prompt text modal here!')">
-            <div class="setting-icon">📝</div>
-            <span>Prompt Text</span>
-        </div>
-        <a href="https://github.com/Marlu0/softies_project/blob/main/HELP.md" target="_blank" class="setting-item" style="text-decoration: none; color: inherit;">
-            <div class="setting-icon">❓</div>
-            <span>Help Button</span>
-        </a>
-
-        <div id="blacklist-section" class="blacklist-section">
-            <h2>Blacklist Files</h2>
-            <p style="text-align: center;"><em>Hide private or sensitive files from assistant responses.<br>These files will not be referenced or displayed.</em></p>
-            <form action="/blacklist" method="post" enctype="multipart/form-data" style="text-align: center; margin: 20px 0;">
-            <input type="file" name="blacklist_files" multiple />
-            <button type="submit">Add to Blacklist</button>
-            </form>
-            <div>
-            <h4>Currently Blacklisted:</h4>
-            <ul>
-                {% for file in blacklisted %}
-                <li>{{ file }}</li>
-                {% else %}
-                <li>No files blacklisted yet.</li>
-                {% endfor %}
-            </ul>
-            </div>
-        </div>
-        </div>
-
-        <div class="robot-img">
-        <img src="{{ url_for('static', filename='images/settings-robot.png') }}" alt="Robot Icon" style="width: 100%" />
-        </div>
-    </div>
-    </div>
-
-    <!-- CSS para el modal -->
-    <style>
-    .modal {
-    position: fixed;
-    inset: 0;
-    background: rgba(0, 0, 0, 0.5);
-    display: none;
-    align-items: center;
-    justify-content: center;
-    z-index: 9999;
-    }
-    .modal.show {
-    display: flex;
-    }
-    .settings-container {
-    background-color: #7da87b;
-    padding: 40px;
-    border-radius: 30px;
-    width: 700px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    position: relative;
-    }
-    .settings-list {
-    display: flex;
-    flex-direction: column;
-    gap: 20px;
-    }
-    .setting-item {
-    display: flex;
-    align-items: center;
-    gap: 15px;
-    font-size: 18px;
-    font-weight: 500;
-    cursor: pointer;
-    }
-    .setting-item:hover {
-    text-decoration: underline;
-    }
-    .setting-icon {
-    background-color: #f5f9f5;
-    border-radius: 10px;
-    padding: 10px;
-    font-size: 20px;
-    }
-    .robot-img {
-    width: 250px;
-    height: auto;
-    border-radius: 30px;
-    background-color: #f0ede8;
-    padding: 30px;
-    }
-    .blacklist-section {
-    display: none;
-    margin-top: 25px;
-    width: 100%;
-    }
-    .close-button {
-    position: absolute;
-    top: 15px;
-    right: 20px;
-    font-weight: bold;
-    background: #fff;
-    padding: 5px 10px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    }
-    </style>
-
-    <!-- JS para mostrar y ocultar el popup -->
-    <script>
-    function openSettingsPopup() {
-    document.getElementById("settingsModal").classList.add("show");
-    }
-    function closeSettingsPopup() {
-    document.getElementById("settingsModal").classList.remove("show");
-    }
-    function toggleBlacklist() {
-    const section = document.getElementById("blacklist-section");
-    section.style.display = section.style.display === "block" ? "none" : "block";
-    }
+        // Handle Enter key in rename input
+        document.getElementById('newProjectName').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                saveProjectRename();
+            }
+        });
     </script>
 </body>
 </html>

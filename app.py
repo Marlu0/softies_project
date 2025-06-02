@@ -66,7 +66,11 @@ def chat_project(project_name):
         return "Proyecto no encontrado", 404
 
     messages = get_project_messages(project_id)
-    return render_template("chat.html", project_name=project_name, projects=projects, messages=messages)
+    return render_template("chat.html", 
+                         project_name=project_name, 
+                         projects=projects, 
+                         messages=messages,
+                         blacklisted=get_blacklist_names())
 
 @app.route("/chat/<project_name>/send", methods=["POST"])
 def send_message(project_name):
@@ -259,6 +263,30 @@ def add_api_key():
         return jsonify({'success': True}), 200
     except Exception as e:
         return jsonify({'error': 'Failed to save API key: ' + str(e)}), 500
+
+@app.route('/api/rename_project', methods=['POST'])
+def rename_project():
+    data = request.get_json()
+    project_id = data.get('project_id')
+    new_name = data.get('new_name', '').strip()
+
+    if not project_id or not new_name:
+        return jsonify({'error': 'Project ID and new name are required'}), 400
+
+    try:
+        conn = get_db_connection()
+        # Check if the new name already exists
+        existing = conn.execute('SELECT id FROM projects WHERE name = ? AND id != ?', 
+                              (new_name, project_id)).fetchone()
+        if existing:
+            return jsonify({'error': 'A project with this name already exists'}), 409
+
+        conn.execute('UPDATE projects SET name = ? WHERE id = ?', (new_name, project_id))
+        conn.commit()
+        conn.close()
+        return jsonify({'success': True, 'new_name': new_name}), 200
+    except Exception as e:
+        return jsonify({'error': f'Failed to rename project: {str(e)}'}), 500
 
 # --- Pywebview Integration ---
 
