@@ -1,35 +1,29 @@
-import pyttsx3
+from gtts import gTTS
 import emoji
+import os
+from playsound import playsound
+import tempfile
 
-def speak_text(text: str, voice_index: int = 2, rate: int = 200, volume: float = 1.0):
+def speak_text(text: str, lang: str = 'en'):  # Changed default to 'en'
     """
-    Speak the given text aloud using the specified voice, rate, and volume.
+    Speak the given text aloud using Google Text-to-Speech.
 
     :param text: The text to speak.
-    :param voice_index: Index of the voice to use (default is 0).
-    :param rate: Speed of speech (default is 150).
-    :param volume: Volume level from 0.0 to 1.0 (default is 1.0).
+    :param lang: Language code (default is 'en' for English).
     """
     text = emoji.demojize(text)
-    engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
-
-    if 0 <= voice_index < len(voices):
-        engine.setProperty('voice', voices[voice_index].id)
-    else:
-        print(f"⚠️ Invalid voice index: {voice_index}. Using default voice.")
-
-    engine.setProperty('rate', rate)
-    engine.setProperty('volume', volume)
-
-    engine.say(text)
-    engine.runAndWait()
+    tts = gTTS(text=text, lang=lang)
+    with tempfile.NamedTemporaryFile(delete=False, suffix='.mp3') as fp:
+        temp_path = fp.name
+        tts.save(temp_path)
+    playsound(temp_path)
+    os.remove(temp_path)
 
 def list_voices():
     """
-    Print available TTS voices with their index and language info.
+    Print available languages for gTTS.
     """
-    engine = pyttsx3.init()
-    voices = engine.getProperty('voices')
-    for index, voice in enumerate(voices):
-        print(f"{index}: {voice.name} ({voice.languages})")
+    from gtts.lang import tts_langs
+    langs = tts_langs()
+    for code, name in langs.items():
+        print(f"{code}: {name}")

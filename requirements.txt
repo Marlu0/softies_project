@@ -9,3 +9,5 @@ sounddevice
 Flask
 pywebview
 emoji
+playsound==1.2.2
+gtts
