@@ -411,6 +411,316 @@
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(125, 168, 123, 0.3);
         }
+
+        .chat-area {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            background: linear-gradient(to bottom, #f1fff4, #d9f9e3);
+            position: relative;
+        }
+
+        .chat-header {
+            padding: 20px;
+            background: #fff;
+            border-bottom: 1px solid #ddd;
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-header-content {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .api-key-status {
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+        }
+
+        .api-key-status.connected {
+            background: #e7f7e7;
+            color: #2e7d32;
+            border: 1px solid #a5d6a7;
+        }
+
+        .api-key-status.disconnected {
+            background: #ffebee;
+            color: #c62828;
+            border: 1px solid #ef9a9a;
+        }
+
+        .api-key-status:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .messages {
+            flex: 1;
+            padding: 30px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            scroll-behavior: smooth;
+        }
+
+        .messages::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .messages::-webkit-scrollbar-track {
+            background: rgba(0, 0, 0, 0.05);
+            border-radius: 4px;
+        }
+
+        .messages::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.15);
+            border-radius: 4px;
+        }
+
+        .messages::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.25);
+        }
+
+        .message {
+            max-width: 80%;
+            padding: 16px 20px;
+            margin-bottom: 8px;
+            border-radius: 20px;
+            line-height: 1.5;
+            position: relative;
+            font-size: 15px;
+        }
+
+        .message.user {
+            background: #000;
+            color: white;
+            align-self: flex-end;
+            margin-left: auto;
+            border-bottom-right-radius: 4px;
+        }
+
+        .message.bot {
+            background: #fff;
+            color: #222;
+            align-self: flex-start;
+            margin-right: auto;
+            border-bottom-left-radius: 4px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+        }
+
+        .message.bot img {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            position: absolute;
+            left: -40px;
+            bottom: 0;
+            border: 2px solid #fff;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .message pre {
+            background: #f5f7f9;
+            padding: 12px 16px;
+            border-radius: 8px;
+            overflow-x: auto;
+            margin: 8px 0;
+            font-size: 14px;
+        }
+
+        .message code {
+            font-family: 'Fira Code', monospace;
+            background: #f5f7f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        .typing-indicator {
+            display: none;
+            padding: 20px;
+            background: #fff;
+            border-radius: 20px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+            align-self: flex-start;
+            position: relative;
+        }
+
+        .typing-indicator::before {
+            content: '';
+            width: 8px;
+            height: 8px;
+            background: #666;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 4px;
+            animation: typing 1s infinite;
+        }
+
+        .typing-indicator::after {
+            content: 'Softy is typing...';
+            color: #666;
+            font-size: 14px;
+        }
+
+        @keyframes typing {
+            0%, 100% { opacity: 0.3; }
+            50% { opacity: 1; }
+        }
+
+        .chat-input {
+            padding: 20px 30px;
+            background: #fff;
+            border-top: 1px solid rgba(0, 0, 0, 0.08);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            box-shadow: 0 -2px 12px rgba(0, 0, 0, 0.05);
+        }
+
+        .chat-input input {
+            flex: 1;
+            padding: 12px 20px;
+            border: 2px solid #e0e0e0;
+            border-radius: 25px;
+            font-size: 15px;
+            background: #f8f9fa;
+            transition: all 0.2s ease;
+        }
+
+        .chat-input input:focus {
+            border-color: #7da87b;
+            background: #fff;
+            outline: none;
+            box-shadow: 0 2px 12px rgba(125, 168, 123, 0.15);
+        }
+
+        #mic-btn {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+        }
+
+        #mic-btn:hover {
+            background: #7da87b;
+            border-color: #7da87b;
+        }
+
+        #mic-btn:hover svg {
+            fill: #fff;
+        }
+
+        #mic-btn.recording {
+            background: #ef5350;
+            border-color: #ef5350;
+            animation: pulse 1.5s infinite;
+        }
+
+        #mic-btn.recording svg {
+            fill: #fff;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 83, 80, 0.4); }
+            70% { box-shadow: 0 0 0 10px rgba(239, 83, 80, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 83, 80, 0); }
+        }
+
+        /* Modal Close Button Styles */
+        .modal-close-btn {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #f5f5f5;
+            color: #666;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        .modal-close-btn:hover {
+            background: #e0e0e0;
+            color: #333;
+            transform: rotate(90deg);
+        }
+
+        .modal-close-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+        }
+
+        /* Settings Modal Styles */
+        #settingsModal .settings-container {
+            position: relative;
+        }
+
+        #settingsModal .close-button {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            border: none;
+            background: #fff;
+            color: #666;
+            font-size: 18px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
+            z-index: 10;
+        }
+
+        #settingsModal .close-button:hover {
+            background: #f0f0f0;
+            color: #333;
+            transform: rotate(90deg);
+        }
+
+        /* API Key Modal Styles */
+        #apiKeyModal .modal-content {
+            position: relative;
+        }
+
+        /* Blacklist Modal Styles */
+        #blacklistModal .modal-content {
+            position: relative;
+        }
+
+        /* Rename Modal Styles */
+        #renameModal .modal-content {
+            position: relative;
+        }
     </style>
 </head>
 <body>
@@ -440,37 +750,45 @@
         </aside>
 
         <main class="chat-area">
-            <header class="chat-header" style="display: flex; align-items: center; gap: 12px;">
-                <img src="{{ url_for('static', filename='images/robot-icon.jpg') }}" alt="Softy Bot" style="width: 48px; height: 48px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.10);">
-                <h1 style="margin: 0; font-size: 2rem;">Softy</h1>
+            <header class="chat-header">
+                <div class="chat-header-content">
+                    <img src="{{ url_for('static', filename='images/robot-icon.jpg') }}" alt="Softy Bot" style="width: 48px; height: 48px; border-radius: 50%; background: #fff; box-shadow: 0 2px 8px rgba(0,0,0,0.10);">
+                    <h1 style="margin: 0; font-size: 2rem;">Softy</h1>
+                </div>
+                <button 
+                    id="apiKeyStatus" 
+                    class="api-key-status" 
+                    onclick="openModal()"
+                >
+                    <span class="status-icon">⚪</span>
+                    <span class="status-text">Checking API Key...</span>
+                </button>
             </header>
 
             <section class="messages">
                 {% for msg in messages %}
                     {% if msg['sender'] == 'bot' %}
                         <div class="message bot">
-                            <img src="{{ url_for('static', filename='images/robot-icon.jpg') }}" alt="Bot" style="width: 32px; height: 32px; border-radius: 50%; margin-right: 8px; vertical-align: middle; display: inline-block;">
-                            <div style="display: inline-block;">{{ msg['text']|safe }}</div>
+                            <img src="{{ url_for('static', filename='images/robot-icon.jpg') }}" alt="Bot">
+                            <div>{{ msg['text']|safe }}</div>
                         </div>
                     {% else %}
                         <div class="message user">
-                            <div style="display: inline-block;">{{ msg['text']|safe }}</div>
+                            <div>{{ msg['text']|safe }}</div>
                         </div>
                     {% endif %}
                 {% endfor %}
-                <div class="typing-indicator">Softy is typing...</div>
+                <div class="typing-indicator"></div>
             </section>
 
             <footer class="chat-input">
-                <button id="mic-btn" title="Speak" style="background:none;border:none;outline:none;cursor:pointer;padding:0 8px 0 0;vertical-align:middle;">
-                    <svg id="mic-icon" fill="#000000" height="28px" width="28px" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
-                      <g><g></g>
+                <button id="mic-btn" title="Speak">
+                    <svg fill="#000000" height="24px" width="24px" viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg">
                         <path d="m439.5,236c0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,70-64,126.9-142.7,126.9-78.7,0-142.7-56.9-142.7-126.9 0-11.3-9.1-20.4-20.4-20.4s-20.4,9.1-20.4,20.4c0,86.2 71.5,157.4 163.1,166.7v57.5h-23.6c-11.3,0-20.4,9.1-20.4,20.4 0,11.3 9.1,20.4 20.4,20.4h88c11.3,0 20.4-9.1 20.4-20.4 0-11.3-9.1-20.4-20.4-20.4h-23.6v-57.5c91.6-9.3 163.1-80.5 163.1-166.7z"/>
                         <path d="m256,323.5c51,0 92.3-41.3 92.3-92.3v-127.9c0-51-41.3-92.3-92.3-92.3s-92.3,41.3-92.3,92.3v127.9c0,51 41.3,92.3 92.3,92.3zm-52.3-220.2c0-28.8 23.5-52.3 52.3-52.3s52.3,23.5 52.3,52.3v127.9c0,28.8-23.5,52.3-52.3,52.3s-52.3-23.5-52.3-52.3v-127.9z"/>
-                      </g></g>
                     </svg>
                 </button>
-                <input type="text" placeholder="Enter your message">
+                <input type="text" placeholder="Type your message...">
             </footer>
         </main>
     </div>
@@ -524,7 +842,7 @@
     <!-- API Key Modal -->
     <div id="apiKeyModal">
         <div class="modal-content">
-            <button class="close" onclick="closeModal()">✖️</button>
+            <button class="modal-close-btn" onclick="closeModal()">×</button>
             <h2>Configure API Key</h2>
 
             <label>
@@ -544,7 +862,7 @@
     <!-- Blacklist Modal -->
     <div id="blacklistModal">
         <div class="modal-content">
-            <button class="close" onclick="closeBlacklistModal()">✖️</button>
+            <button class="modal-close-btn" onclick="closeBlacklistModal()">×</button>
             <h2>Blacklist Files</h2>
             
             <p class="description">
@@ -575,7 +893,7 @@
     <!-- Rename Modal -->
     <div id="renameModal">
         <div class="modal-content">
-            <button class="close" onclick="closeRenameModal()">✖️</button>
+            <button class="modal-close-btn" onclick="closeRenameModal()">×</button>
             <h2>Rename Project</h2>
             <input 
                 type="text" 
@@ -609,8 +927,7 @@
 
                 recognition.onstart = function() {
                     listening = true;
-                    micBtn.disabled = true;
-                    micBtn.style.opacity = 0.5;
+                    updateMicButtonState(true);
                     input.value = '';
                     showNotification('Listening...', 'info');
                 };
@@ -630,15 +947,13 @@
 
                 recognition.onerror = function(event) {
                     listening = false;
-                    micBtn.disabled = false;
-                    micBtn.style.opacity = 1;
+                    updateMicButtonState(false);
                     showNotification('Speech recognition error: ' + event.error, 'error');
                 };
 
                 recognition.onend = function() {
-                    micBtn.disabled = false;
-                    micBtn.style.opacity = 1;
                     listening = false;
+                    updateMicButtonState(false);
                     if (input.value.trim() !== '') {
                         input.dispatchEvent(new KeyboardEvent('keypress', {key: 'Enter'}));
                     }
@@ -676,11 +991,11 @@
                     userMessage.className = "message user";
                     userMessage.textContent = text;
                     messagesContainer.appendChild(userMessage);
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    scrollToBottom();
 
                     // Show typing indicator
                     typingIndicator.style.display = 'block';
-                    messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                    scrollToBottom();
 
                     try {
                         // Send to backend
@@ -702,15 +1017,13 @@
                         botMessage.className = "message bot";
                         botMessage.innerHTML = data.response;
                         messagesContainer.appendChild(botMessage);
-                        messagesContainer.scrollTop = messagesContainer.scrollHeight;
+                        scrollToBottom();
                     } catch (err) {
                         console.error("Error sending message:", err);
                         showNotification('Error sending message. Please try again.', 'error');
                         typingIndicator.style.display = 'none';
                     } finally {
-                        micBtn.disabled = false;
-                        micBtn.style.opacity = 1;
-                        listening = false;
+                        updateMicButtonState(false);
                     }
                 }
             });
@@ -767,10 +1080,8 @@
                 }
 
                 showNotification("API key saved successfully!");
-                setTimeout(() => {
-                    closeModal();
-                    location.reload();
-                }, 1000);
+                closeModal();
+                checkApiKeyStatus(); // Update status after saving
             } catch (err) {
                 showNotification(err.message, "error");
             }
@@ -882,6 +1193,92 @@
                 saveProjectRename();
             }
         });
+
+        // Add API Key status check
+        async function checkApiKeyStatus() {
+            try {
+                const response = await fetch('/api/check_api_key');
+                const data = await response.json();
+                const statusButton = document.getElementById('apiKeyStatus');
+                
+                if (data.has_key) {
+                    statusButton.className = 'api-key-status connected';
+                    statusButton.innerHTML = `
+                        <span class="status-icon">🟢</span>
+                        <span class="status-text">API Key Connected</span>
+                    `;
+                } else {
+                    statusButton.className = 'api-key-status disconnected';
+                    statusButton.innerHTML = `
+                        <span class="status-icon">🔴</span>
+                        <span class="status-text">API Key Required</span>
+                    `;
+                }
+            } catch (error) {
+                console.error('Error checking API key status:', error);
+            }
+        }
+
+        // Check API key status on page load
+        document.addEventListener('DOMContentLoaded', checkApiKeyStatus);
+
+        // Update API key status after saving a new key
+        async function saveApiKey() {
+            const alias = document.getElementById("aliasInput").value.trim() || "default";
+            const key = document.getElementById("keyInput").value.trim();
+
+            if (!key) {
+                showNotification("Please enter a valid API key", "error");
+                return;
+            }
+
+            try {
+                const response = await fetch("/api/api_keys/", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ name: alias, key }),
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || "Failed to save API key");
+                }
+
+                showNotification("API key saved successfully!");
+                closeModal();
+                checkApiKeyStatus(); // Update status after saving
+            } catch (err) {
+                showNotification(err.message, "error");
+            }
+        }
+
+        // Update microphone button state
+        function updateMicButtonState(isListening) {
+            const micBtn = document.getElementById('mic-btn');
+            if (isListening) {
+                micBtn.classList.add('recording');
+            } else {
+                micBtn.classList.remove('recording');
+            }
+        }
+
+        // Scroll to bottom when new messages arrive
+        function scrollToBottom() {
+            const messagesContainer = document.querySelector('.messages');
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+
+        // Call scrollToBottom after adding new messages
+        input.addEventListener("keypress", async function(e) {
+            if (e.key === "Enter" && input.value.trim() !== "") {
+                // ... existing message handling code ...
+                scrollToBottom();
+            }
+        });
+
+        // Initial scroll to bottom
+        scrollToBottom();
     </script>
 </body>
 </html>
