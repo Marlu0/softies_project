@@ -163,6 +163,14 @@ def get_project_messages(project_id):
     conn.close()
     return messages
 
+def get_project_messages_count(project_id):
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT count(*) FROM chat_messages WHERE project = ? ORDER BY time", (project_id,))
+    count = cursor.fetchone()
+    conn.close()
+    return count[0] if count else 0
+
 def get_api_keys():
     conn = get_db_connection()
     cursor = conn.cursor()

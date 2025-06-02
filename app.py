@@ -12,10 +12,7 @@ from src.text2speech import speak_text
 from src.chatbot_handler import chat_with_context
 from src.api_handler import get_api_key, is_valid_api_key
 import markdown2
-from src.database import get_db_connection, get_project_path
-
-# Corrected import for database.py, assuming it's in the 'src' subdirectory
-from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys, create_project_message
+from src.database import init_db, create_project, get_all_projects, get_project_by_id, delete_project, get_project_messages, get_project_id_by_name, get_blacklist_names, get_api_keys, create_project_message, update_project_context_summary, get_db_connection, get_project_path, get_project_messages_count
 
 
 app = Flask(__name__)
@@ -85,15 +82,23 @@ def send_message(project_name):
         return jsonify({"error": "Invalid project name"}), 404
 
     create_project_message(project_id, user_message, sender="user")
+    msg_count = get_project_messages_count(project_id)
+    if msg_count <= 1:
+        is_first_prompt = True
+    else:
+        is_first_prompt = False
+
     project_path = get_project_path(project_id)
     full_response = chat_with_context(folder_path=project_path,
                                       user_prompt=user_message,
-                                      is_first_prompt=False,
+                                      project_id = project_id,
+                                      is_first_prompt=is_first_prompt,
                                       model_name="gemini-2.0-flash",
                                       api_key=get_api_key())  # Replace with hardcoded API key if needed
     voice_text = full_response["speak_text"]
     chat_text = full_response["chat"]
     write_text = full_response["write"]
+    update_project_context_summary(project_id, full_response["context"])
 
     # Convert chat_text to HTML using markdown2
     chat_text_html = markdown2.markdown(chat_text)

@@ -2,6 +2,7 @@ import os
 import openpyxl
 import google.generativeai as genai
 import re
+from src.database import get_project_context_summary
 
 # MACROS
 DEFAULT_MODEL_NAME = "gemini-2.0-flash"
@@ -17,7 +18,7 @@ def remove_code_from_text(text):
     text = re.sub(r"`.*?`", "as shown in the code provided in the text box", text)
     return text
 
-def create_context(folder_path, is_first_prompt=False):
+def create_context(folder_path, project_id, is_first_prompt=False):
     """
     Creates a context string for the AI model using the contents of files in the specified folder.
     This context will be prepended to the user's prompt.
@@ -25,8 +26,14 @@ def create_context(folder_path, is_first_prompt=False):
     prompt = "You are an AI expert in code analysis and improvement called Softy. "
     if is_first_prompt:
         prompt += "This is the first time you're being prompted for this project. Introduce yourself. "
+    else:
+        prompt += "This is NOT the first time you're being prompted for this project. The context of the conversation is the following, you should take it into account to answer the user request. "
     prompt += "You will act friendly, and provide technical but easy to understand insights when asked. Below is the content of several files from a project.\n"
     prompt += "Use this information as context to analyze, explain, correct, or improve code, according to the specific request in the following prompt provided by the user.\n\n"
+    
+    summary = get_project_context_summary(project_id)
+    if summary:
+        prompt += "Conversation Context:"+summary+". End of Context.\n"
     prompt += "File Contents:\n\n"
 
     file_contents = process_files(folder_path) # Call process_files to get file content
@@ -38,7 +45,7 @@ def create_context(folder_path, is_first_prompt=False):
         for file_path, content in file_contents.items():
             prompt += f"--- {file_path} ---\n{content}\n\n"
 
-    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content, can't contain markdown formatted text or anything other than plain text>\n--TEXT--\n<content that's displayed in the chat with the AI, this section contains markdown format>\n--WRITE--\n<code changes or suggestions>\n"
+    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content, can't contain markdown formatted text or anything other than plain text>\n--TEXT--\n<content that's displayed in the chat with the AI, this section contains markdown format>\n--WRITE--\n<code changes or suggestions>\n--CONTEXT--\n<summary of what this project and conversation is about, key asspects and topics so a following prompt can easily catch up>\n"
     prompt += "The AI will not write code directly in the chat, but will provide a description of the changes or improvements needed.\n"
     prompt += "The following user prompt will contain the specific instructions for the code analysis:"
     return prompt
@@ -117,7 +124,7 @@ def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__fil
 
     return file_contents
 
-def chat_with_context(folder_path, user_prompt, api_key, is_first_prompt=False, model_name=DEFAULT_MODEL_NAME):
+def chat_with_context(folder_path, user_prompt, project_id, api_key, is_first_prompt=False, model_name=DEFAULT_MODEL_NAME):
     """
     Interacts with the AI model using the generated context and the user's prompt.
     Returns both the original response from the AI and a modified version with code snippets replaced.
@@ -125,7 +132,7 @@ def chat_with_context(folder_path, user_prompt, api_key, is_first_prompt=False, 
     genai.configure(api_key=api_key)
 
     model = genai.GenerativeModel(model_name)
-    context = create_context(folder_path, is_first_prompt)
+    context = create_context(folder_path, project_id, is_first_prompt)
     full_prompt = f"{context}\n\nUser prompt: {user_prompt}"
 
     print("\n--- Full Prompt Sent to Model ---")
@@ -136,10 +143,11 @@ def chat_with_context(folder_path, user_prompt, api_key, is_first_prompt=False, 
         response = model.generate_content(full_prompt)
         original_response = response.text
         modified_response = original_response #remove_code_from_text(original_response)
-        parts = re.split(r'--SPEAK--\n|--TEXT--\n|--WRITE--\n', modified_response, flags=re.DOTALL)
+        parts = re.split(r'--SPEAK--\n|--TEXT--\n|--WRITE--\n|--CONTEXT--\n', modified_response, flags=re.DOTALL)
         speak_text = parts[1].strip() if len(parts) > 1 else ""
         chat = parts[2].strip() if len(parts) > 2 else ""
         write = parts[3].strip() if len(parts) > 3 else ""
-        return {"speak_text": speak_text, "chat": chat, "write": write}
+        chat_summary = parts[4].strip() if len(parts) > 4 else ""
+        return {"speak_text": speak_text, "chat": chat, "write": write, "context": chat_summary}
     except Exception as e:
         return {"speak_text": "", "chat": f"Error generating response: {e}", "write": ""}
