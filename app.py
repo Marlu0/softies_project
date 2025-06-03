@@ -97,7 +97,6 @@ def send_message(project_name):
                                       api_key=get_api_key())  # Replace with hardcoded API key if needed
     voice_text = full_response["speak_text"]
     chat_text = full_response["chat"]
-    write_text = full_response["write"]
     update_project_context_summary(project_id, full_response["context"])
 
     # Convert chat_text to HTML using markdown2
