@@ -733,16 +733,19 @@
             <ul>
                 {% for project in projects %}
                     <li class="{% if project.name == project_name %}active{% endif %}">
-                        <div class="project-info">
-                            <a href="{{ url_for('chat_project', project_name=project.name) }}">{{ project.name }}</a>
-                            <button 
-                                class="rename-icon" 
-                                onclick="openRenameModal('{{ project.id }}', '{{ project.name }}')"
-                                title="Rename project"
-                            >
-                                ✏️
-                            </button>
-                        </div>
+                        <a href="{{ url_for('chat_project', project_name=project.name) }}" class="project-info">
+                            <div class="project-info" style="display: flex; align-items: center; justify-content: space-between; width: 100%;">
+                                <span>{{ project.name }}</span>
+                                <button 
+                                    class="rename-icon" 
+                                    onclick="openRenameModal('{{ project.id }}', '{{ project.name }}')"
+                                    title="Rename project"
+                                    style="margin-left: auto;"
+                                >
+                                    ✏️
+                                </button>
+                            </div>
+                        </a>
                     </li>
                 {% endfor %}
             </ul>
@@ -819,7 +822,7 @@
 
                 <!-- HELP -->
                 <a
-                    href="https://github.com/Marlu0/softies_project/blob/c91f801aeb4adc89a50efdb55ada744558b08b8d/HELP.md"
+                    href="https://github.com/Marlu0/softies_project/blob/main/HELP.md"
                     target="_blank"
                     class="setting-item"
                     style="text-decoration: none; color: inherit;"
@@ -916,6 +919,7 @@
             const typingIndicator = document.querySelector(".typing-indicator");
             let listening = false;
             let recognition = null;
+            let micPermissionGranted = false;
 
             // Use Web Speech API for speech-to-text
             if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
@@ -948,7 +952,16 @@
                 recognition.onerror = function(event) {
                     listening = false;
                     updateMicButtonState(false);
-                    showNotification('Speech recognition error: ' + event.error, 'error');
+                    if (event.error === "not-allowed" || event.error === "denied") {
+                        micPermissionGranted = false;
+                        showNotification('Microphone permission denied. Please allow access and click the mic again.', 'error');
+                    } else if (event.error === "no-speech" && !micPermissionGranted) {
+                        // This can happen on first try after permission is granted
+                        micPermissionGranted = true;
+                        showNotification('Microphone permission granted. Click the mic button again to start speaking.', 'info');
+                    } else {
+                        showNotification('Speech recognition error: ' + event.error, 'error');
+                    }
                 };
 
                 recognition.onend = function() {
@@ -969,13 +982,16 @@
                 if (listening) {
                     try { recognition.abort(); } catch (e) {}
                 }
-                setTimeout(() => {
-                    try { 
-                        recognition.start(); 
-                    } catch (e) {
-                        showNotification('Could not activate microphone. Please check browser permissions.', 'error');
-                    }
-                }, 100);
+                if (!micPermissionGranted) {
+                    // Try to start recognition to trigger permission prompt
+                    try { recognition.start(); } catch (e) {}
+                } else {
+                    setTimeout(() => {
+                        try { recognition.start(); } catch (e) {
+                            showNotification('Could not activate microphone. Please check browser permissions.', 'error');
+                        }
+                    }, 100);
+                }
             });
 
             input.addEventListener("keypress", async function(e) {

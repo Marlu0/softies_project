@@ -45,7 +45,7 @@ def create_context(folder_path, project_id, is_first_prompt=False):
         for file_path, content in file_contents.items():
             prompt += f"--- {file_path} ---\n{content}\n\n"
 
-    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content, can't contain markdown formatted text or anything other than plain text>\n--TEXT--\n<content that's displayed in the chat with the AI, this section contains markdown format>\n--WRITE--\n<code changes or suggestions>\n--CONTEXT--\n<summary of what this project and conversation is about, key asspects and topics so a following prompt can easily catch up>\n"
+    prompt += "The response should be structured as follows:\n --SPEAK--\n<spoken content, can't contain markdown formatted text or anything other than plain text>\n--TEXT--\n<content that's displayed in the chat with the AI, this section contains markdown format>\n--WRITE--\n<code changes or suggestions>\n--CONTEXT--\n<summary of what this project and conversation is about, key asspects and topics so a following prompt can easily catch up>\n--FILE--\nSHOULD ONLY BE INCLUDED IF THE AGENT IS MENT TO UPDATE OR CREATE ONE FILE\n<operation, MUST be exactly 'CREATE' or 'UPDATE'>\n<path, always the absolute path>\n<code on the file with the changes made/or new content.> so the file instruction has to have those 3 parts, separated by lines\n"
     prompt += "The AI will not write code directly in the chat, but will provide a description of the changes or improvements needed.\n"
     prompt += "The following user prompt will contain the specific instructions for the code analysis:"
     return prompt
@@ -124,6 +124,34 @@ def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__fil
 
     return file_contents
 
+def create_file(path, content):
+    """
+    creates the file at the given path with the provided content.
+    Returns True if successful, False otherwise.
+    """
+    print("Creating file.")
+    try:
+        with open(path, 'x', encoding='utf-8') as f:
+            f.write(content)
+        return True
+    except Exception as e:
+        print(f"Error creating file {path}: {e}")
+        return False
+
+def update_file(path, content):
+    """
+    Updates the file at the given path with the provided content.
+    Returns True if successful, False otherwise.
+    """
+    print("updating file.")
+    try:
+        with open(path, 'w', encoding='utf-8') as f:
+            f.write(content)
+        return True
+    except Exception as e:
+        print(f"Error updating file {path}: {e}")
+        return False
+
 def chat_with_context(folder_path, user_prompt, project_id, api_key, is_first_prompt=False, model_name=DEFAULT_MODEL_NAME):
     """
     Interacts with the AI model using the generated context and the user's prompt.
@@ -143,11 +171,32 @@ def chat_with_context(folder_path, user_prompt, project_id, api_key, is_first_pr
         response = model.generate_content(full_prompt)
         original_response = response.text
         modified_response = original_response #remove_code_from_text(original_response)
-        parts = re.split(r'--SPEAK--\n|--TEXT--\n|--WRITE--\n|--CONTEXT--\n', modified_response, flags=re.DOTALL)
+        parts = re.split(r'--SPEAK--\n|--TEXT--\n|--WRITE--\n|--CONTEXT--\n|--FILE--\n', modified_response, flags=re.DOTALL)
         speak_text = parts[1].strip() if len(parts) > 1 else ""
         chat = parts[2].strip() if len(parts) > 2 else ""
         write = parts[3].strip() if len(parts) > 3 else ""
         chat_summary = parts[4].strip() if len(parts) > 4 else ""
-        return {"speak_text": speak_text, "chat": chat, "write": write, "context": chat_summary}
+        file_change = parts[5].strip() if len(parts) > 5 else ""
+        file_update_success = None
+        if file_change:
+            # The first line is the operation, the second is the path, the rest is the content
+            file_lines = file_change.split('\n', 2)
+            if len(file_lines) >= 3:
+                operation = file_lines[0].strip().upper()
+                file_path = file_lines[1].strip()
+                file_content = file_lines[2]
+                if file_content.__contains__('```'):
+                    # Remove the first and last line of file_content before updating/creating the file
+                    file_content_lines = file_content.splitlines()
+                    if len(file_content_lines) > 2:
+                        file_content = '\n'.join(file_content_lines[1:-1])
+                    else:
+                        file_content = ''
+                print("IA FILE_CHANGE\n",operation+"\n", file_path+"\n", file_content+"\n")
+                if operation == "UPDATE":
+                    file_update_success = update_file(file_path, file_content)
+                elif operation == "CREATE":
+                    file_update_success = create_file(file_path, file_content)
+        return {"speak_text": speak_text, "chat": chat, "write": write, "context": chat_summary, "file_update_success": file_update_success}
     except Exception as e:
         return {"speak_text": "", "chat": f"Error generating response: {e}", "write": ""}
