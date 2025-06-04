@@ -1189,7 +1189,7 @@
 
                 showNotification('Project renamed successfully!');
                 setTimeout(() => {
-                    location.reload();
+                    window.location.href = "/chat/" + newName;
                 }, 1000);
             } catch (err) {
                 showNotification(err.message, 'error');
