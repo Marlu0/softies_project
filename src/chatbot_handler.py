@@ -82,7 +82,8 @@ def process_files(folder_path, blacklist_file=os.path.join(os.path.dirname(__fil
         '.workflow', '.profile', '.permission', '.queue', '.sharingrules', '.role',
         '.site', '.community', '.dashboard', '.report', '.email', '.letterhead',
         '.document', '.folder', '.weblink', '.sitemap', '.robots', '.htaccess', '.htpasswd',
-        '.npmignore', '.yarnignore', '.eslintignore', '.prettierignore', '.stylelintignore'
+        '.npmignore', '.yarnignore', '.eslintignore', '.prettierignore', '.stylelintignore',
+        '.cu'
     )
     EXCEL_EXTENSIONS = ('.xlsx', '.xls', '.xlsm') # Added .xlsm for macro-enabled workbooks
 
